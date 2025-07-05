@@ -1,0 +1,256 @@
+/*
+  File CSS hoàn chỉnh cho bố cục 2 cột (Sidebar + Content)
+  Thiết kế theo hướng Mobile-First và sử dụng biến CSS.
+*/
+
+/* --- 1. ĐỊNH NGHĨA BIẾN CSS TOÀN CỤC --- */
+:root {
+  --color-primary: #3b82f6; /* Màu xanh chủ đạo (blue-500) */
+  --color-primary-dark: #2563eb; /* Màu xanh đậm hơn (blue-600) */
+  --color-text-dark: #1f2937; /* Màu chữ chính (gray-800) */
+  --color-text-light: #6b7280; /* Màu chữ phụ (gray-500) */
+  --color-surface: #ffffff; /* Màu nền của các thẻ (card, header) */
+  --color-background: #f8fafc; /* Màu nền của trang (slate-50) */
+  --color-border: #e5e7eb; /* Màu viền (gray-200) */
+
+  --font-family-sans: "Be Vietnam Pro", sans-serif;
+  --sidebar-width: 250px;
+  --header-height: 64px;
+}
+
+/* --- 2. RESET VÀ STYLES CƠ BẢN --- */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family-sans);
+  background-color: var(--color-background);
+  color: var(--color-text-dark);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+a:hover {
+  color: var(--color-primary);
+}
+
+/* --- 3. BỐ CỤC CHÍNH --- */
+.page-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.top-header {
+  height: var(--header-height);
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.main-wrapper {
+  display: flex;
+  flex: 1; /* Đây là thuộc tính quan trọng giúp đẩy footer xuống */
+}
+
+.sidebar {
+  width: var(--sidebar-width);
+  background-color: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+  padding: 1.5rem;
+  transition: transform 0.3s ease;
+}
+
+.main-content {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+/* --- 4. CÁC THÀNH PHẦN GIAO DIỆN --- */
+
+/* Header */
+.header-search-wrapper {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  margin: 0 1rem;
+}
+.header-search-bar {
+  width: 100%;
+  max-width: 500px;
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  border: 1px solid var(--color-border);
+  background-color: var(--color-background);
+  transition: all 0.2s ease;
+}
+.header-search-bar:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
+}
+
+.header-nav a {
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+.header-nav a:hover {
+  background-color: var(--color-background);
+}
+
+.mobile-menu-toggle {
+  display: none; /* Ẩn trên desktop */
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+}
+
+/* Sidebar */
+.sidebar-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+.category-list {
+  list-style: none;
+}
+.category-list a {
+  display: block;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+.category-list a:hover {
+  background-color: var(--color-background);
+  color: var(--color-primary);
+  transform: translateX(5px);
+}
+
+/* Product Card */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.5rem;
+}
+
+.product-card {
+  background-color: var(--color-surface);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  border: 1px solid var(--color-border);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+.product-card .product-image-wrapper {
+  overflow: hidden;
+}
+.product-card .product-image {
+  width: 100%;
+  height: 224px; /* 14rem */
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+.product-card:hover .product-image {
+  transform: scale(1.05);
+}
+.product-card-content {
+  padding: 1.5rem;
+}
+.product-card-category {
+  font-size: 0.875rem;
+  color: var(--color-text-light);
+  margin-bottom: 0.25rem;
+}
+.product-card-name {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-text-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.product-card-link {
+  display: inline-block;
+  margin-top: 1rem;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+/* --- 5. RESPONSIVE (MOBILE-FIRST) --- */
+@media (max-width: 768px) {
+  .main-wrapper {
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 80%;
+    max-width: 300px;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    transform: translateX(-100%);
+    z-index: 50;
+    overflow-y: auto;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  }
+  .sidebar.is-open {
+    transform: translateX(0);
+  }
+  .main-content {
+    padding: 1rem;
+  }
+  .mobile-menu-toggle {
+    display: block;
+  }
+  .header-nav {
+    display: none; /* Ẩn link trang chủ trên mobile để tiết kiệm không gian */
+  }
+  .top-header {
+    padding: 0 1rem;
+  }
+}
+
+/* --- 6. FOOTER --- */
+.main-footer {
+  background-color: var(--color-text-dark);
+  color: var(--color-background);
+  padding: 2rem 1.5rem;
+  text-align: center;
+  border-top: 1px solid #374151; /* gray-700 */
+}
+
+.main-footer p {
+  margin: 0;
+  color: var(--color-text-light);
+}
+
+.main-footer a {
+  color: var(--color-primary);
+  font-weight: 500;
+}

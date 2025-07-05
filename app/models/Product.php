@@ -8,18 +8,13 @@ class Product
         $this->db = Database::getInstance()->getConnection();
     }
 
-    /**
-     * Lấy các sản phẩm nổi bật (ví dụ: 4 sản phẩm mới nhất).
-     * @return array Mảng các đối tượng sản phẩm.
-     */
     public function getFeaturedProducts($limit = 4)
     {
+        // ... (hàm này không thay đổi)
         try {
             $query = "
                 SELECT 
-                    p.name, 
-                    p.slug, 
-                    p.image_url, 
+                    p.name, p.slug, p.image_url, 
                     c.name as category_name
                 FROM products p
                 JOIN categories c ON p.category_id = c.id
@@ -31,7 +26,32 @@ class Product
             $stmt->execute();
             return $stmt->fetchAll();
         } catch (PDOException $e) {
-            error_log($e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Lấy tất cả sản phẩm thuộc một danh mục dựa vào slug của danh mục đó.
+     * @param string $categorySlug
+     * @return array
+     */
+    public function getProductsByCategorySlug($categorySlug)
+    {
+        try {
+            $query = "
+                SELECT 
+                    p.name, p.slug, p.image_url,
+                    c.name as category_name
+                FROM products p
+                JOIN categories c ON p.category_id = c.id
+                WHERE c.slug = :category_slug
+                ORDER BY p.created_at DESC
+            ";
+            $stmt = $this->db->prepare($query);
+            $stmt->bindParam(':category_slug', $categorySlug, PDO::PARAM_STR);
+            $stmt->execute();
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
             return [];
         }
     }

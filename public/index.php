@@ -4,6 +4,7 @@ session_start();
 
 // Tải file cấu hình và các lớp lõi
 require_once '../config/config.php';
+require_once '../app/models/Database.php'; // <--- DÒNG NÀY ĐƯỢC THÊM VÀO ĐỂ SỬA LỖI
 require_once '../app/core/Controller.php';
 
 // Logic routing đơn giản

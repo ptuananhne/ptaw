@@ -8,19 +8,31 @@ class Category
         $this->db = Database::getInstance()->getConnection();
     }
 
-    /**
-     * Lấy tất cả danh mục từ CSDL.
-     * @return array Mảng các đối tượng danh mục.
-     */
     public function getAllCategories()
     {
+        // ... (hàm này không thay đổi)
         try {
             $stmt = $this->db->query("SELECT name, slug FROM categories ORDER BY name ASC");
             return $stmt->fetchAll();
         } catch (PDOException $e) {
-            // Trong thực tế, bạn nên ghi lỗi này vào file log thay vì trả về mảng rỗng
-            error_log($e->getMessage());
             return [];
+        }
+    }
+
+    /**
+     * Lấy thông tin một danh mục bằng slug.
+     * @param string $slug
+     * @return object|false
+     */
+    public function getCategoryBySlug($slug)
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT id, name, slug FROM categories WHERE slug = :slug");
+            $stmt->bindParam(':slug', $slug, PDO::PARAM_STR);
+            $stmt->execute();
+            return $stmt->fetch();
+        } catch (PDOException $e) {
+            return false;
         }
     }
 }
