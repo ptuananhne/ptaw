@@ -39,38 +39,9 @@ class Product
         }
     }
 
-    /**
-     * @deprecated This method causes N+1 query problem. Use getTopProductsGroupedByAllCategories instead.
-     */
-    public function getTopViewedProductsByCategory($categoryId, $limit = 8)
-    {
-        try {
-            $query = "
-                SELECT p.name, p.slug, p.image_url, p.price, c.name as category_name
-                FROM products p JOIN categories c ON p.category_id = c.id
-                WHERE p.category_id = :category_id
-                ORDER BY p.view_count DESC, p.created_at DESC
-                LIMIT :limit";
-            $stmt = $this->db->prepare($query);
-            $stmt->bindParam(':category_id', $categoryId, PDO::PARAM_INT);
-            $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
-            $stmt->execute();
-            return $stmt->fetchAll();
-        } catch (PDOException $e) {
-            return [];
-        }
-    }
-
-    /**
-     * PHƯƠNG THỨC MỚI ĐƯỢC TỐI ƯU HÓA
-     * Lấy các sản phẩm hàng đầu, được nhóm theo tất cả các danh mục, chỉ bằng một truy vấn.
-     * @param int $limit Số lượng sản phẩm mỗi danh mục
-     * @return array Mảng các sản phẩm đã được nhóm
-     */
     public function getTopProductsGroupedByAllCategories($limit = 8)
     {
         try {
-            // Sử dụng ROW_NUMBER() để xếp hạng sản phẩm trong mỗi danh mục
             $query = "
                 WITH RankedProducts AS (
                     SELECT
@@ -87,7 +58,6 @@ class Product
             $stmt->execute();
             $allProducts = $stmt->fetchAll();
 
-            // Nhóm kết quả lại bằng PHP
             $groupedResult = [];
             foreach ($allProducts as $product) {
                 if (!isset($groupedResult[$product->category_name])) {
@@ -100,8 +70,6 @@ class Product
             }
             return $groupedResult;
         } catch (PDOException $e) {
-            // Trong môi trường thực tế, bạn nên log lỗi này
-            // error_log($e->getMessage());
             return [];
         }
     }
@@ -186,8 +154,8 @@ class Product
             $query = "
                 SELECT p.*, c.slug as category_slug, c.name as category_name, b.name as brand_name
                 FROM products p
-                JOIN categories c ON p.category_id = c.id
-                JOIN brands b ON p.brand_id = b.id
+                LEFT JOIN categories c ON p.category_id = c.id
+                LEFT JOIN brands b ON p.brand_id = b.id
                 WHERE p.slug = :slug";
             $stmt = $this->db->prepare($query);
             $stmt->bindParam(':slug', $slug, PDO::PARAM_STR);
@@ -223,7 +191,10 @@ class Product
     // --- CÁC HÀM CHO TRANG TÌM KIẾM ---
     public function searchProducts($options = [])
     {
-        $query = "SELECT p.*, c.name as category_name FROM products p JOIN categories c ON p.category_id = c.id";
+        // Sử dụng LEFT JOIN để an toàn hơn, phòng trường hợp sản phẩm không có category
+        $query = "SELECT p.*, c.name as category_name 
+                  FROM products p 
+                  LEFT JOIN categories c ON p.category_id = c.id";
         $whereClauses = [];
         $params = [];
 
@@ -246,18 +217,25 @@ class Product
         try {
             $stmt = $this->db->prepare($query);
             foreach ($params as $key => &$val) {
-                $stmt->bindParam($key, $val);
+                // Xác định kiểu dữ liệu để bind param chính xác hơn
+                $type = is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR;
+                $stmt->bindParam($key, $val, $type);
             }
             $stmt->execute();
             return $stmt->fetchAll();
         } catch (PDOException $e) {
+            // Log lỗi để debug
+            // error_log($e->getMessage());
             return [];
         }
     }
 
     public function countSearchedProducts($options = [])
     {
-        $query = "SELECT COUNT(p.id) as total FROM products p";
+        // SỬA LỖI: Thêm JOIN để đồng bộ với hàm searchProducts
+        $query = "SELECT COUNT(p.id) as total 
+                  FROM products p 
+                  LEFT JOIN categories c ON p.category_id = c.id";
         $whereClauses = [];
         $params = [];
 
@@ -279,6 +257,8 @@ class Product
             $result = $stmt->fetch();
             return $result ? (int)$result->total : 0;
         } catch (PDOException $e) {
+            // Log lỗi để debug
+            // error_log($e->getMessage());
             return 0;
         }
     }

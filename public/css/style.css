@@ -1,40 +1,35 @@
 /*
   ================================================================================
-  == FILE CSS HOÀN CHỈNH - PHIÊN BẢN 5.1 (BANNER FIX)
+  == FILE CSS HOÀN CHỈNH NHẤT - PHIÊN BẢN 11.0
   == Tác giả: Gemini
   == Ngày: 2025-07-06
   ==
-  == Mô tả: Phiên bản CSS cuối cùng, được viết lại dựa trên việc rà soát
-  == toàn bộ các tệp view (home, category, product, search, layouts).
-  == Đảm bảo tính nhất quán, sửa tất cả các lỗi đã biết và tối ưu hóa toàn diện.
+  == Mô tả: Phiên bản cuối cùng, sửa lỗi vỡ bố cục slider trên trang chủ khi
+  == không có sản phẩm. Tối ưu hóa và làm sạch toàn bộ mã nguồn.
   ================================================================================
 */
 
 /* --- 1. CÀI ĐẶT BIẾN TOÀN CỤC & RESET --- */
 :root {
-  /* Bảng màu */
   --color-primary: #007bff;
   --color-primary-rgb: 0, 123, 255;
   --color-primary-dark: #0056b3;
   --color-primary-light: #e6f2ff;
   --color-secondary: #6c757d;
-  --color-text: #343a40;
+  --color-text: #212529;
   --color-text-muted: #6c757d;
   --color-surface: #ffffff;
-  --color-background: #f9fafb;
+  --color-background: #f8f9fa;
   --color-border: #dee2e6;
-  --color-success: #28a745;
+  --color-success: #198754;
   --color-danger: #dc3545;
-  /* Typography */
   --font-family-main: "Be Vietnam Pro", -apple-system, BlinkMacSystemFont,
     "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-size-base: 16px;
   --line-height-base: 1.7;
-  /* Bố cục */
   --header-height-desktop: 72px;
   --sidebar-width: 260px;
   --container-width: 1280px;
-  /* Hiệu ứng */
   --border-radius-sm: 0.25rem;
   --border-radius-md: 0.5rem;
   --border-radius-lg: 1rem;
@@ -101,6 +96,7 @@ button {
 }
 .main-content {
   padding: 1.5rem 0;
+  overflow-x: hidden;
 }
 
 /* --- 3. HEADER --- */
@@ -166,7 +162,7 @@ button {
   justify-content: center;
 }
 
-/* --- 4. SIDEBAR (MOBILE & DESKTOP) & NAVIGATION --- */
+/* --- 4. SIDEBAR & NAVIGATION --- */
 .sidebar {
   display: none;
 }
@@ -260,9 +256,6 @@ button {
   margin-top: 0.75rem;
   font-size: 1.1rem;
   color: var(--color-text-muted);
-}
-.breadcrumb {
-  margin-bottom: 1.5rem;
 }
 .breadcrumb ol {
   display: flex;
@@ -425,14 +418,15 @@ button {
 }
 
 /* --- 6. COMPONENTS THEO TỪNG TRANG --- */
-/* Home Page: Banner & Sliders (ĐÃ SỬA LỖI VÀ CẢI TIẾN) */
+/* Home Page: Banner & Sliders */
 .banner-section {
   margin-bottom: 2.5rem;
   border-radius: var(--border-radius-lg);
-  overflow: hidden;
+  overflow: hidden; /* Quan trọng: Giữ banner không tràn ra ngoài */
   background-color: var(--color-border);
   aspect-ratio: 16 / 7;
   box-shadow: var(--shadow-md);
+  width: 100%; /* Đảm bảo banner chiếm đúng chiều rộng của container cha */
 }
 .banner-slider-container {
   position: relative;
@@ -558,6 +552,8 @@ button {
   scroll-behavior: smooth;
   overflow-x: auto;
   scrollbar-width: none;
+  min-height: 250px; /* FIX: Chống vỡ layout khi không có sản phẩm */
+  align-items: stretch;
 }
 .slider-track::-webkit-scrollbar {
   display: none;
@@ -567,7 +563,7 @@ button {
   scroll-behavior: auto;
 }
 .slider-track .product-card {
-  flex: 0 0 80%;
+  flex: 0 0 55%;
 }
 .slider-btn {
   position: absolute;
@@ -579,7 +575,7 @@ button {
   width: 44px;
   height: 44px;
   z-index: 10;
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.5rem;
@@ -597,14 +593,15 @@ button {
   cursor: not-allowed;
 }
 .slider-btn.prev {
-  left: -22px;
+  left: 0.1rem;
 }
 .slider-btn.next {
-  right: -22px;
+  right: 0.1rem;
 }
 .product-slider:not(.is-scrollable) .slider-btn {
   display: none !important;
 }
+
 /* Category Page: Filter Bar */
 .filter-bar {
   display: flex;
@@ -652,6 +649,7 @@ button {
   background-color: var(--color-primary-dark);
   box-shadow: var(--shadow-md);
 }
+
 /* Product Detail Page */
 .product-detail-page {
   padding-top: 1rem;
@@ -882,6 +880,7 @@ button {
   }
   .slider-btn {
     display: flex;
+    z-index: 10;
   }
   .filter-bar {
     flex-direction: row;
@@ -909,8 +908,8 @@ button {
 }
 @media (min-width: 1024px) {
   .product-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
   }
   .slider-track .product-card {
     flex-basis: calc(33.333% - 1rem);

@@ -22,13 +22,12 @@ class HomeController extends Controller
         // Lấy tất cả danh mục (vẫn cần cho sidebar)
         $allCategories = $categoryModel->getAllCategories();
 
-        // === TỐI ƯU HÓA TẠI ĐÂY ===
-        // Thay vì lặp và query nhiều lần, chúng ta gọi phương thức mới
-        // để lấy tất cả sản phẩm cần thiết trong 1 lần query duy nhất.
+        // Lấy tất cả sản phẩm cần thiết trong 1 lần query duy nhất.
         $productsByCategory = $productModel->getTopProductsGroupedByAllCategories(8);
 
         $data = [
             'title' => 'Trang chủ - PTA | Thế giới công nghệ',
+            // 'page_class' => 'page-home', // <-- DÒNG NÀY ĐÃ ĐƯỢC XÓA
             'categories' => $allCategories,
             'banners' => $activeBanners,
             'featuredProducts' => $featuredProducts,

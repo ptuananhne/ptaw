@@ -5,8 +5,10 @@
     <p>&copy; <?= date('Y') ?> PTA. All rights reserved. Designed by Gemini.</p>
 </footer>
 
-</div>
-<script src="<?= BASE_URL ?>/js/main.js"></script>
+</div> <!-- end .page-container -->
+
+<!-- Main JavaScript file -->
+<script src="<?= BASE_URL ?>/js/main.js?v=6.0"></script>
 
 </body>
 

@@ -1,20 +1,23 @@
 <?php $this->view('client/layouts/header', $data); ?>
+<?php require_once 'components/product_card.php'; // Nạp tệp hàm component 
+?>
 
 <div class="page-header">
     <nav class="breadcrumb" aria-label="breadcrumb">
         <ol>
             <li><a href="<?= BASE_URL ?>">Trang chủ</a></li>
-            <li class="active"><?= htmlspecialchars($category->name) ?></li>
+            <li class="active" aria-current="page"><?= htmlspecialchars($category->name) ?></li>
         </ol>
     </nav>
     <h1 class="page-title"><?= htmlspecialchars($category->name) ?></h1>
 </div>
 
+<!-- Filter Bar -->
 <form class="filter-bar" method="GET" action="">
     <div class="filter-group">
         <label for="brand-filter">Thương hiệu</label>
-        <select name="brand" id="brand-filter">
-            <option value="">Tất cả</option>
+        <select name="brand" id="brand-filter" onchange="this.form.submit()">
+            <option value="">Tất cả thương hiệu</option>
             <?php foreach ($brands as $brand): ?>
                 <option value="<?= $brand->id ?>" <?= (isset($filters['brand']) && $filters['brand'] == $brand->id) ? 'selected' : '' ?>>
                     <?= htmlspecialchars($brand->name) ?>
@@ -24,52 +27,33 @@
     </div>
     <div class="filter-group">
         <label for="sort-filter">Sắp xếp</label>
-        <select name="sort" id="sort-filter">
-            <option value="views_desc" <?= (isset($filters['sort']) && $filters['sort'] == 'views_desc') ? 'selected' : '' ?>>Xem nhiều nhất</option>
+        <select name="sort" id="sort-filter" onchange="this.form.submit()">
+            <option value="views_desc" <?= (isset($filters['sort']) && $filters['sort'] == 'views_desc') ? 'selected' : '' ?>>Phổ biến nhất</option>
             <option value="newest" <?= (isset($filters['sort']) && $filters['sort'] == 'newest') ? 'selected' : '' ?>>Mới nhất</option>
-            <option value="price_asc" <?= (isset($filters['sort']) && $filters['sort'] == 'price_asc') ? 'selected' : '' ?>>Giá tăng dần</option>
-            <option value="price_desc" <?= (isset($filters['sort']) && $filters['sort'] == 'price_desc') ? 'selected' : '' ?>>Giá giảm dần</option>
+            <option value="price_asc" <?= (isset($filters['sort']) && $filters['sort'] == 'price_asc') ? 'selected' : '' ?>>Giá: Thấp đến Cao</option>
+            <option value="price_desc" <?= (isset($filters['sort']) && $filters['sort'] == 'price_desc') ? 'selected' : '' ?>>Giá: Cao đến Thấp</option>
         </select>
     </div>
-    <button type="submit" class="filter-button">Lọc</button>
+    <button type="submit" class="filter-button">Lọc sản phẩm</button>
 </form>
 
+<!-- Product Grid -->
 <div class="product-grid">
     <?php if (!empty($products)): ?>
         <?php foreach ($products as $product): ?>
-            <div class="product-card">
-                <a href="<?= BASE_URL . '/product/' . $product->slug ?>">
-                    <div class="product-image-wrapper">
-                        <img class="product-image" src="<?= BASE_URL . '/' . htmlspecialchars($product->image_url ?? '') ?>" alt="<?= htmlspecialchars($product->name) ?>">
-                    </div>
-                    <div class="product-card-content">
-                        <div>
-                            <p class="product-card-category"><?= htmlspecialchars($product->category_name) ?></p>
-                            <h3 class="product-card-name"><?= htmlspecialchars($product->name) ?></h3>
-                        </div>
-                        <div>
-                            <p class="product-card-price">
-                                <?php if (isset($product->price) && $product->price > 0): ?>
-                                    <?= number_format($product->price, 0, ',', '.') ?> đ
-                                <?php else: ?>
-                                    Liên hệ
-                                <?php endif; ?>
-                            </p>
-                            <span class="product-card-link">Xem chi tiết</span>
-                        </div>
-                    </div>
-                </a>
-            </div>
+            <?php render_product_card($product); // Gọi hàm để render thẻ sản phẩm 
+            ?>
         <?php endforeach; ?>
     <?php else: ?>
         <div class="empty-state">
-            <p>Không tìm thấy sản phẩm nào phù hợp.</p>
+            <p>Không tìm thấy sản phẩm nào phù hợp với lựa chọn của bạn.</p>
         </div>
     <?php endif; ?>
 </div>
 
+<!-- Pagination -->
 <?php if (isset($pagination) && $pagination['total'] > 1): ?>
-    <nav class="pagination">
+    <nav class="pagination" aria-label="Product navigation">
         <ul>
             <?php
             $queryString = http_build_query($filters ?? []);
@@ -77,7 +61,9 @@
             <?php for ($i = 1; $i <= $pagination['total']; $i++): ?>
                 <li>
                     <a href="?page=<?= $i ?>&<?= $queryString ?>"
-                        class="<?= ($pagination['current'] == $i) ? 'active' : '' ?>">
+                        class="<?= ($pagination['current'] == $i) ? 'active' : '' ?>"
+                        aria-label="Go to page <?= $i ?>"
+                        <?= ($pagination['current'] == $i) ? 'aria-current="page"' : '' ?>>
                         <?= $i ?>
                     </a>
                 </li>

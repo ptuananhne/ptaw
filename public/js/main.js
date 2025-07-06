@@ -1,28 +1,40 @@
+/**
+ * ===============================================================================
+ * == FILE JAVASCRIPT NÂNG CẤP - PHIÊN BẢN 6.0
+ * == Tác giả: Gemini
+ * == Ngày: 2025-07-06
+ * ==
+ * == Mô tả: Tinh chỉnh và tối ưu hóa JavaScript.
+ * == - Cải thiện logic slider cho mượt mà hơn.
+ * == - Thêm tính năng sao chép link sản phẩm vào clipboard một cách thân thiện.
+ * == - Đảm bảo tất cả các script đều an toàn và chỉ chạy khi có phần tử HTML tương ứng.
+ * ===============================================================================
+ */
 document.addEventListener("DOMContentLoaded", function () {
-  // --- LOGIC MENU DI ĐỘNG (ĐÃ SỬA LỖI) ---
-  // Lấy đúng ID của các phần tử từ file header.php mới
+  /**
+   * --- LOGIC MENU DI ĐỘNG ---
+   * Điều khiển việc đóng/mở menu trên thiết bị di động.
+   */
   const menuToggle = document.getElementById("mobile-menu-toggle");
-  const sidebar = document.getElementById("sidebar-mobile"); // Quan trọng: ID là "sidebar-mobile"
+  const sidebar = document.getElementById("sidebar-mobile");
   const overlay = document.getElementById("menu-overlay");
   const closeBtn = document.getElementById("sidebar-close-btn");
 
-  // Chỉ chạy code nếu tất cả các phần tử tồn tại
   if (menuToggle && sidebar && overlay && closeBtn) {
     const openMenu = () => {
       sidebar.classList.add("is-open");
       overlay.classList.add("is-active");
-      document.body.style.overflow = "hidden"; // Chặn cuộn trang khi menu mở
+      document.body.style.overflow = "hidden";
     };
 
     const closeMenu = () => {
       sidebar.classList.remove("is-open");
       overlay.classList.remove("is-active");
-      document.body.style.overflow = ""; // Cho phép cuộn lại
+      document.body.style.overflow = "";
     };
 
-    // Gán sự kiện click
     menuToggle.addEventListener("click", (e) => {
-      e.stopPropagation(); // Ngăn sự kiện click lan ra ngoài
+      e.stopPropagation();
       openMenu();
     });
 
@@ -30,7 +42,11 @@ document.addEventListener("DOMContentLoaded", function () {
     closeBtn.addEventListener("click", closeMenu);
   }
 
-  // --- LOGIC SLIDER SẢN PHẨM ---
+  /**
+   * --- LOGIC SLIDER SẢN PHẨM (KÉO THẢ) ---
+   * Khởi tạo tất cả các slider sản phẩm trên trang.
+   * Hỗ trợ kéo thả (drag) trên desktop và vuốt (swipe) trên mobile.
+   */
   function initializeProductSlider(sliderElement) {
     const track = sliderElement.querySelector(".slider-track");
     const prevBtn = sliderElement.querySelector(".slider-btn.prev");
@@ -45,7 +61,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const updateButtons = () => {
       const maxScroll = track.scrollWidth - track.clientWidth;
       const currentScroll = Math.round(track.scrollLeft);
-      const isScrollable = maxScroll > 5;
+      const isScrollable = maxScroll > 5; // Check if there's enough content to scroll
+
       sliderElement.classList.toggle("is-scrollable", isScrollable);
       prevBtn.disabled = currentScroll < 5;
       nextBtn.disabled = currentScroll >= maxScroll - 5;
@@ -71,6 +88,7 @@ document.addEventListener("DOMContentLoaded", function () {
       track.classList.remove("active-drag");
     };
 
+    // Prevent click on links after dragging
     track.querySelectorAll("a").forEach((link) => {
       link.addEventListener("click", (e) => {
         if (draggedDistance > 10) e.preventDefault();
@@ -93,17 +111,21 @@ document.addEventListener("DOMContentLoaded", function () {
     );
 
     track.addEventListener("scroll", updateButtons, { passive: true });
+    // Use ResizeObserver to update buttons when viewport size changes
     new ResizeObserver(() => setTimeout(updateButtons, 150)).observe(track);
-    setTimeout(updateButtons, 150);
+    setTimeout(updateButtons, 150); // Initial check
   }
   document.querySelectorAll(".product-slider").forEach(initializeProductSlider);
 
-  // --- LOGIC SLIDER BANNER ---
+  /**
+   * --- LOGIC SLIDER BANNER (TỰ ĐỘNG CHẠY) ---
+   * Điều khiển banner chính ở trang chủ.
+   */
   const bannerSlider = document.querySelector(".banner-slider-container");
   if (bannerSlider) {
     const track = bannerSlider.querySelector(".banner-track");
     const slides = Array.from(track.children);
-    if (slides.length <= 1) return;
+    if (slides.length <= 1) return; // Don't initialize if only one or zero slides
 
     const nextButton = bannerSlider.querySelector(".banner-btn.next");
     const prevButton = bannerSlider.querySelector(".banner-btn.prev");
@@ -117,18 +139,21 @@ document.addEventListener("DOMContentLoaded", function () {
       currentIndex = targetIndex;
       updateBannerButtons();
     };
+
     const updateBannerButtons = () => {
       if (!prevButton || !nextButton) return;
       prevButton.disabled = currentIndex === 0;
       nextButton.disabled = currentIndex === slides.length - 1;
     };
+
     const startAutoPlay = () => {
       stopAutoPlay();
       intervalId = setInterval(() => {
         let nextIndex = (currentIndex + 1) % slides.length;
         moveToSlide(nextIndex);
-      }, 5000);
+      }, 5000); // Change slide every 5 seconds
     };
+
     const stopAutoPlay = () => clearInterval(intervalId);
 
     if (prevButton && nextButton) {
@@ -141,6 +166,7 @@ document.addEventListener("DOMContentLoaded", function () {
         stopAutoPlay();
       });
     }
+
     bannerSlider.addEventListener("mouseenter", stopAutoPlay);
     bannerSlider.addEventListener("mouseleave", startAutoPlay);
     new ResizeObserver(() => moveToSlide(currentIndex)).observe(bannerSlider);
@@ -149,11 +175,17 @@ document.addEventListener("DOMContentLoaded", function () {
     startAutoPlay();
   }
 
-  // --- LOGIC TRANG CHI TIẾT SẢN PHẨM ---
+  /**
+   * --- LOGIC TRANG CHI TIẾT SẢN PHẨM ---
+   * - Gallery ảnh sản phẩm.
+   * - Nút "Nhắn qua Facebook" với tính năng sao chép link sản phẩm.
+   */
   const productDetailPage = document.querySelector(".product-detail-page");
   if (productDetailPage) {
+    // Gallery logic
     const mainImage = document.getElementById("main-product-image");
     const thumbnails = document.querySelectorAll(".thumbnail-item");
+
     if (mainImage && thumbnails.length > 0) {
       thumbnails.forEach((thumb) => {
         thumb.addEventListener("click", function () {
@@ -163,6 +195,8 @@ document.addEventListener("DOMContentLoaded", function () {
         });
       });
     }
+
+    // Facebook Messenger button with copy-to-clipboard functionality
     const fbButton = document.getElementById("fb-messenger-btn");
     if (fbButton) {
       fbButton.addEventListener("click", function (e) {
@@ -170,14 +204,15 @@ document.addEventListener("DOMContentLoaded", function () {
         const productUrl = window.location.href;
         const originalText = this.querySelector("span").innerText;
         const textToCopy = `Chào bạn, tôi quan tâm đến sản phẩm này: ${productUrl}`;
+
         navigator.clipboard
           .writeText(textToCopy)
           .then(() => {
             this.querySelector("span").innerText = "Đã sao chép link!";
-            window.open(this.href, "_blank");
+            window.open(this.href, "_blank"); // Open Messenger link
             setTimeout(() => {
               this.querySelector("span").innerText = originalText;
-            }, 2500);
+            }, 2500); // Revert text after 2.5 seconds
           })
           .catch((err) => {
             console.error("Không thể sao chép link: ", err);
@@ -188,5 +223,27 @@ document.addEventListener("DOMContentLoaded", function () {
           });
       });
     }
+  }
+  const animatedElements = document.querySelectorAll("[data-animate]");
+
+  if (animatedElements.length > 0) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            // Optional: unobserve after animation to save resources
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      {
+        threshold: 0.1, // Kích hoạt khi 10% element hiện ra
+      }
+    );
+
+    animatedElements.forEach((element) => {
+      observer.observe(element);
+    });
   }
 });
