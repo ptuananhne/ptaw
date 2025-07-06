@@ -1,5 +1,5 @@
 /*
-  File CSS hoàn chỉnh, được nâng cấp để có giao diện hiện đại và nhiều hiệu ứng hơn.
+  File CSS hoàn chỉnh, được viết lại theo phương pháp Mobile-First.
 */
 
 /* --- 1. BIẾN CSS VÀ RESET --- */
@@ -12,7 +12,7 @@
   --color-background: #f9fafb;
   --color-border: #e5e7eb;
   --font-family-sans: "Be Vietnam Pro", sans-serif;
-  --sidebar-width: 250px;
+  --sidebar-width-desktop: 250px;
   --header-height: 64px;
   --border-radius: 8px;
   --transition-speed: 0.3s;
@@ -39,77 +39,61 @@ a:hover {
   color: var(--color-primary);
 }
 
-/* --- 2. BỐ CỤC CHÍNH --- */
+/* --- 2. BỐ CỤC CHÍNH (MOBILE-FIRST) --- */
 .page-container {
-  display: grid;
-  grid-template-rows: var(--header-height) 1fr auto;
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
 }
 .top-header {
-  grid-row: 1 / 2;
+  height: var(--header-height);
   background-color: var(--color-surface);
   border-bottom: 1px solid var(--color-border);
   display: flex;
   align-items: center;
+  padding: 0 1rem;
   position: sticky;
   top: 0;
   z-index: 40;
 }
 .main-wrapper {
-  grid-row: 2 / 3;
   display: flex;
-  position: relative;
+  flex-direction: column;
+  flex-grow: 1;
+}
+.sidebar {
+  display: none;
+} /* Mặc định ẩn trên desktop, hiện trên mobile bằng JS */
+.main-content {
+  padding: 1rem;
 }
 .main-footer {
-  grid-row: 3 / 4;
   background-color: var(--color-text-dark);
   color: var(--color-background);
   padding: 2rem 1.5rem;
   text-align: center;
 }
 
-/* --- 3. SIDEBAR VÀ CONTENT --- */
-.sidebar {
-  width: var(--sidebar-width);
-  background-color: var(--color-surface);
-  border-right: 1px solid var(--color-border);
-  padding: 1.5rem;
-  transition: transform var(--transition-speed) ease;
-  position: sticky;
-  top: var(--header-height);
-  height: calc(100vh - var(--header-height));
-  overflow-y: auto;
-}
-.main-content {
-  flex: 1;
-  padding: 2rem;
-  overflow-y: auto;
-}
-
-/* --- 4. HEADER --- */
+/* --- 3. HEADER (MOBILE-FIRST) --- */
 .header-container {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
+  display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 0.75rem;
   width: 100%;
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 1.5rem;
 }
 .header-logo {
   font-size: 1.75rem;
   font-weight: 700;
   color: var(--color-primary);
+  flex-shrink: 0;
 }
 .header-search-wrapper {
-  width: 100%;
-  max-width: 700px;
-  justify-self: center;
+  flex-grow: 1;
+  min-width: 0;
 }
 .header-search-bar {
   width: 100%;
-  padding: 0.75rem 1.5rem;
+  padding: 0.6rem 1rem;
   border-radius: 9999px;
   border: 1px solid var(--color-border);
   background-color: var(--color-background);
@@ -121,22 +105,13 @@ a:hover {
   box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
 }
 .header-right {
-  display: flex;
-  align-items: center;
-  justify-self: end;
+  flex-shrink: 0;
 }
-.header-nav a {
-  font-weight: 500;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  white-space: nowrap;
-  transition: background-color var(--transition-speed) ease;
-}
-.header-nav a:hover {
-  background-color: var(--color-background);
-}
-.mobile-menu-toggle {
+.header-nav {
   display: none;
+} /* Ẩn trên mobile */
+.mobile-menu-toggle {
+  display: block;
   background: none;
   border: none;
   cursor: pointer;
@@ -147,7 +122,25 @@ a:hover {
   background-color: var(--color-background);
 }
 
-/* --- 5. SIDEBAR --- */
+/* --- 4. SIDEBAR (MOBILE-FIRST) --- */
+.sidebar-mobile {
+  width: 80%;
+  max-width: 300px;
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100vh;
+  transform: translateX(100%);
+  z-index: 50;
+  background-color: var(--color-surface);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  transition: transform var(--transition-speed) ease;
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+.sidebar-mobile.is-open {
+  transform: translateX(0);
+}
 .sidebar-header {
   display: flex;
   justify-content: space-between;
@@ -160,7 +153,6 @@ a:hover {
   margin: 0;
 }
 .sidebar-close-btn {
-  display: none;
   background: none;
   border: none;
   font-size: 2rem;
@@ -192,11 +184,11 @@ a:hover {
   box-shadow: 0 4px 6px rgba(59, 130, 246, 0.2);
 }
 
-/* --- 6. PRODUCT CARD --- */
+/* --- 5. PRODUCT CARD & GRID (MOBILE-FIRST) --- */
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
 }
 .product-card {
   background-color: var(--color-surface);
@@ -232,47 +224,65 @@ a:hover {
   transform: scale(1.05);
 }
 .product-card-content {
-  padding: 1rem;
+  padding: 0.75rem;
   border-top: 1px solid var(--color-border);
   flex-grow: 1;
   display: flex;
   flex-direction: column;
 }
+.product-card-top {
+  flex-grow: 1;
+}
+.product-card-bottom {
+  flex-shrink: 0;
+}
 .product-card-category {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   color: var(--color-text-light);
   margin-bottom: 0.25rem;
 }
 .product-card-name {
-  font-size: 1.125rem;
+  font-size: 0.875rem;
   font-weight: 600;
   color: var(--color-text-dark);
-  flex-grow: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 2.2em;
+}
+.product-card-price {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-top: 0.5rem;
 }
 .product-card-link {
   display: inline-block;
-  margin-top: 1rem;
+  padding-top: 0.5rem;
   font-weight: 600;
   color: var(--color-primary);
+  font-size: 0.875rem;
 }
 
-/* --- 7. SLIDER --- */
+/* --- 6. SLIDER (MOBILE-FIRST) --- */
 .product-carousel-section {
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
 }
 .section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 .section-title {
-  font-size: 1.75rem;
+  font-size: 1.25rem;
   font-weight: 700;
 }
 .see-all-link {
   font-weight: 600;
   color: var(--color-primary);
+  font-size: 0.875rem;
 }
 .product-slider {
   position: relative;
@@ -282,7 +292,7 @@ a:hover {
 }
 .slider-track {
   display: flex;
-  gap: 1.5rem;
+  gap: 1rem;
   scroll-behavior: smooth;
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -297,8 +307,8 @@ a:hover {
   display: none;
 }
 .slider-track .product-card {
-  flex: 0 0 25%;
-  max-width: 25%;
+  flex: 0 0 70%;
+  max-width: 70%;
 }
 .slider-btn {
   position: absolute;
@@ -307,14 +317,14 @@ a:hover {
   background-color: rgba(255, 255, 255, 0.9);
   border: 1px solid var(--color-border);
   border-radius: 50%;
-  width: 44px;
-  height: 44px;
+  width: 36px;
+  height: 36px;
   cursor: pointer;
   z-index: 10;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   color: var(--color-text-dark);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   transition: all var(--transition-speed) ease;
@@ -331,93 +341,40 @@ a:hover {
   pointer-events: none;
 }
 .slider-btn.prev {
-  left: -22px;
+  left: 10px;
 }
 .slider-btn.next {
-  right: -22px;
+  right: 10px;
 }
 
-/* --- 8. PAGE-SPECIFIC STYLES --- */
+/* --- 7. PAGE-SPECIFIC STYLES (MOBILE-FIRST) --- */
 .page-header {
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid var(--color-border);
 }
-.breadcrumb ol {
-  display: flex;
-  flex-wrap: wrap;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  color: var(--color-text-light);
-  font-size: 0.875rem;
-}
-.breadcrumb li:not(:last-child)::after {
-  content: "/";
-  margin: 0 0.5rem;
-  color: var(--color-border);
-}
 .page-title {
-  font-size: 2.25rem;
-  font-weight: 700;
-  margin-top: 0.5rem;
-  color: var(--color-text-dark);
-}
-.breadcrumb li.active {
-  color: var(--color-text-dark);
-  font-weight: 500;
-}
-.search-summary {
-  margin-top: 0.5rem;
-  color: var(--color-text-light);
-}
-.empty-state {
-  grid-column: 1 / -1;
-  text-align: center;
-  padding: 4rem 1rem;
-  background-color: var(--color-surface);
-  border-radius: var(--border-radius);
-  border: 2px dashed var(--color-border);
-}
-.empty-state p {
-  font-size: 1.125rem;
-  color: var(--color-text-light);
+  font-size: 1.75rem;
 }
 .filter-bar {
   display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 1.5rem;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1rem;
   padding: 1rem;
   background-color: var(--color-surface);
   border-radius: var(--border-radius);
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   border: 1px solid var(--color-border);
 }
-.filter-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-.filter-group label {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--color-text-light);
-}
 .filter-group select {
+  min-width: 100%;
   padding: 0.75rem 1rem;
   border-radius: 6px;
   border: 1px solid var(--color-border);
-  min-width: 220px;
-  background-color: var(--color-background);
-  transition: all var(--transition-speed) ease;
-}
-.filter-group select:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
 }
 .filter-button {
+  align-self: stretch;
   padding: 0.75rem 1.5rem;
   border: none;
   background-color: var(--color-primary);
@@ -425,210 +382,136 @@ a:hover {
   font-weight: 600;
   border-radius: 6px;
   cursor: pointer;
-  transition: background-color var(--transition-speed) ease;
-}
-.filter-button:hover {
-  background-color: var(--color-primary-dark);
-}
-.pagination {
-  display: flex;
-  justify-content: center;
-  margin-top: 2.5rem;
-}
-.pagination ul {
-  display: flex;
-  list-style: none;
-  gap: 0.5rem;
 }
 .pagination a {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 1px solid var(--color-border);
-  transition: all var(--transition-speed) ease;
-}
-.pagination a:hover {
-  border-color: var(--color-primary);
-  background-color: var(--color-background);
-}
-.pagination a.active {
-  background-color: var(--color-primary);
-  color: white;
-  border-color: var(--color-primary);
-  font-weight: 600;
-}
-
-/* --- 9. PRODUCT DETAIL PAGE --- */
-.product-main-info {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 2rem;
-  margin-top: 1.5rem;
-}
-.product-gallery .main-image {
-  border: 1px solid var(--color-border);
-  border-radius: var(--border-radius);
-  overflow: hidden;
-  aspect-ratio: 1 / 1;
-}
-.product-gallery .main-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.thumbnail-list {
-  display: flex;
-  gap: 0.75rem;
-  margin-top: 1rem;
-  flex-wrap: wrap;
-}
-.thumbnail-item {
-  width: 64px;
-  height: 64px;
-  border: 2px solid var(--color-border);
-  border-radius: 6px;
-  overflow: hidden;
-  cursor: pointer;
-  transition: border-color 0.2s ease;
-}
-.thumbnail-item img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-.thumbnail-item:hover,
-.thumbnail-item.active {
-  border-color: var(--color-primary);
+  width: 36px;
+  height: 36px;
+  line-height: 36px;
 }
 .product-title {
-  font-size: 2rem;
+  font-size: 1.5rem;
+}
+
+/* --- 8. PRODUCT DETAIL PAGE STYLES (MOBILE-FIRST) --- */
+.product-main-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+.product-title {
+  font-size: 1.5rem;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.3;
 }
 .product-meta {
   display: flex;
-  gap: 1.5rem;
-  margin-top: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  margin-top: 0.75rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid var(--color-border);
   font-size: 0.875rem;
   color: var(--color-text-light);
 }
-.meta-link {
-  color: var(--color-primary);
-  font-weight: 500;
+.product-price-box {
+  margin-top: 1rem;
 }
-.product-description {
+.price-label {
+  font-size: 0.875rem;
+}
+.product-price {
+  font-size: 1.75rem;
+}
+.contact-actions {
   margin-top: 1rem;
 }
 .section-heading {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-bottom: 0.75rem;
-}
-.product-description p {
-  line-height: 1.6;
-  color: var(--color-text-light);
-}
-.product-specs {
-  margin-top: 2.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--color-border);
-}
-.specs-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-.specs-table tr {
-  border-bottom: 1px solid var(--color-border);
-}
-.specs-table td {
-  padding: 0.75rem;
-}
-.specs-table tr:nth-child(odd) {
-  background-color: #f9fafb;
-}
-.specs-table td:first-child {
-  font-weight: 500;
-  width: 30%;
+  font-size: 1.125rem;
 }
 
-/* --- 10. RESPONSIVE --- */
-@media (max-width: 1024px) {
-  .slider-track .product-card {
-    flex-basis: 33.33%;
-    max-width: 33.33%;
+/* --- 9. DESKTOP STYLES --- */
+@media (min-width: 769px) {
+  /* Layout */
+  .page-container {
+    grid-template-rows: var(--header-height) 1fr auto;
   }
-}
-@media (max-width: 768px) {
+  .top-header {
+    padding: 0;
+  }
   .main-wrapper {
-    flex-direction: column;
-    overflow: visible;
+    flex-direction: row;
   }
   .sidebar {
-    width: 80%;
-    max-width: 300px;
-    position: fixed;
-    top: 0;
-    right: 0;
-    height: 100vh;
-    transform: translateX(100%);
-    z-index: 50;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-    border-right: none;
-    border-left: 1px solid var(--color-border);
-  }
-  .sidebar.is-open {
-    transform: translateX(0);
-  }
-  .sidebar.is-open .sidebar-close-btn {
     display: block;
+    width: var(--sidebar-width-desktop);
   }
   .main-content {
-    padding: 1rem;
+    padding: 2rem;
   }
+
+  /* Header */
   .header-container {
-    display: flex;
-    gap: 0.75rem;
-    padding: 0 1rem;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 1.5rem;
+    padding: 0 1.5rem;
   }
-  .header-nav {
-    display: none;
-  }
-  .header-search-wrapper {
-    flex-grow: 1;
-    min-width: 0;
-  }
-  .header-right {
-    flex-shrink: 0;
-  }
-  .slider-track .product-card {
-    flex-basis: 50%;
-    max-width: 50%;
-  }
-  .slider-btn.prev {
-    left: 10px;
-  }
-  .slider-btn.next {
-    right: 10px;
-  }
-}
-@media (max-width: 480px) {
-  .slider-track .product-card {
-    flex-basis: 70%;
-    max-width: 70%;
-  }
-}
-@media (min-width: 769px) {
   .mobile-menu-toggle {
     display: none;
   }
+  .header-nav {
+    display: block;
+  }
+
+  /* Product Grid & Slider */
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1.5rem;
+  }
+  .slider-track .product-card {
+    flex-basis: 25%;
+    max-width: 25%;
+  }
+  .slider-btn.prev {
+    left: -22px;
+  }
+  .slider-btn.next {
+    right: -22px;
+  }
+  .product-card-name {
+    font-size: 1.125rem;
+  }
+  .product-card-price {
+    font-size: 1.25rem;
+  }
+  .product-card-link {
+    font-size: 1rem;
+  }
+
+  /* Page Specific */
+  .page-title {
+    font-size: 2.25rem;
+  }
+  .filter-bar {
+    flex-direction: row;
+    align-items: flex-end;
+  }
+  .filter-group select {
+    min-width: 220px;
+  }
+  .filter-button {
+    align-self: flex-end;
+  }
+  .product-title {
+    font-size: 2rem;
+  }
+  .product-main-info {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
-/* --- 11. MENU OVERLAY --- */
+/* --- 10. MENU OVERLAY --- */
 .menu-overlay {
   position: fixed;
   top: 0;

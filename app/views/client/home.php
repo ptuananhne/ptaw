@@ -29,9 +29,20 @@
                                     <img class="product-image" src="<?= BASE_URL . '/' . htmlspecialchars($product->image_url ?? '') ?>" alt="<?= htmlspecialchars($product->name) ?>">
                                 </div>
                                 <div class="product-card-content">
-                                    <p class="product-card-category"><?= htmlspecialchars($product->category_name) ?></p>
-                                    <h3 class="product-card-name"><?= htmlspecialchars($product->name) ?></h3>
-                                    <span class="product-card-link">Xem chi tiết</span>
+                                    <div class="product-card-top">
+                                        <p class="product-card-category"><?= htmlspecialchars($product->category_name) ?></p>
+                                        <h3 class="product-card-name"><?= htmlspecialchars($product->name) ?></h3>
+                                    </div>
+                                    <div class="product-card-bottom">
+                                        <p class="product-card-price">
+                                            <?php if (isset($product->price) && $product->price > 0): ?>
+                                                <?= number_format($product->price, 0, ',', '.') ?>đ
+                                            <?php else: ?>
+                                                Liên hệ
+                                            <?php endif; ?>
+                                        </p>
+                                        <span class="product-card-link">Xem chi tiết</span>
+                                    </div>
                                 </div>
                             </a>
                         </div>
