@@ -170,4 +170,76 @@ class Product
         } catch (PDOException $e) { /* Do nothing */
         }
     }
+    /**
+     * Tìm kiếm sản phẩm theo từ khóa, có phân trang.
+     * @param array $options
+     * @return array
+     */
+    public function searchProducts($options = [])
+    {
+        $query = "SELECT p.*, c.name as category_name FROM products p JOIN categories c ON p.category_id = c.id";
+        $whereClauses = [];
+        $params = [];
+
+        if (!empty($options['keyword'])) {
+            $whereClauses[] = "(p.name LIKE :keyword OR p.description LIKE :keyword)";
+            $params[':keyword'] = '%' . $options['keyword'] . '%';
+        }
+
+        if (!empty($whereClauses)) {
+            $query .= " WHERE " . implode(" AND ", $whereClauses);
+        }
+
+        $query .= " ORDER BY p.view_count DESC";
+
+        if (isset($options['limit'])) {
+            $query .= " LIMIT :limit OFFSET :offset";
+            $params[':limit'] = $options['limit'];
+            $params[':offset'] = $options['offset'] ?? 0;
+        }
+
+        try {
+            $stmt = $this->db->prepare($query);
+            foreach ($params as $key => &$val) {
+                $stmt->bindParam($key, $val);
+            }
+            $stmt->execute();
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            return [];
+        }
+    }
+
+    /**
+     * Đếm tổng số sản phẩm tìm thấy.
+     * @param array $options
+     * @return int
+     */
+    public function countSearchedProducts($options = [])
+    {
+        $query = "SELECT COUNT(p.id) as total FROM products p";
+        $whereClauses = [];
+        $params = [];
+
+        if (!empty($options['keyword'])) {
+            $whereClauses[] = "(p.name LIKE :keyword OR p.description LIKE :keyword)";
+            $params[':keyword'] = '%' . $options['keyword'] . '%';
+        }
+
+        if (!empty($whereClauses)) {
+            $query .= " WHERE " . implode(" AND ", $whereClauses);
+        }
+
+        try {
+            $stmt = $this->db->prepare($query);
+            foreach ($params as $key => &$val) {
+                $stmt->bindParam($key, $val);
+            }
+            $stmt->execute();
+            $result = $stmt->fetch();
+            return $result ? (int)$result->total : 0;
+        } catch (PDOException $e) {
+            return 0;
+        }
+    }
 }

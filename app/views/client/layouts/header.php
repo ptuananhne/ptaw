@@ -14,29 +14,39 @@
 </head>
 
 <body>
+    <div class="menu-overlay" id="menu-overlay"></div>
     <div class="page-container">
         <header class="top-header">
-            <div class="header-left">
-                <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Mở danh mục">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
-                        <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5" />
-                    </svg>
-                </button>
+            <div class="header-container">
                 <a href="<?= BASE_URL ?>" class="header-logo">PTA</a>
-            </div>
 
-            <div class="header-search-wrapper">
-                <input type="search" placeholder="Tìm kiếm sản phẩm..." class="header-search-bar">
+                <div class="header-search-wrapper">
+                    <form action="<?= BASE_URL ?>/search" method="GET" style="width: 100%;">
+                        <input type="search" name="q" placeholder="Tìm kiếm sản phẩm..." class="header-search-bar" value="<?= htmlspecialchars($keyword ?? '') ?>">
+                    </form>
+                </div>
+
+                <div class="header-right">
+                    <nav class="header-nav">
+                        <a href="<?= BASE_URL ?>">Trang chủ</a>
+                    </nav>
+                    <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Mở menu">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5" />
+                        </svg>
+                    </button>
+                </div>
             </div>
-            <nav class="header-nav">
-                <a href="<?= BASE_URL ?>">Trang chủ</a>
-            </nav>
         </header>
 
         <div class="main-wrapper">
             <aside class="sidebar" id="sidebar">
-                <h2 class="sidebar-title">Danh mục</h2>
+                <div class="sidebar-header">
+                    <h2 class="sidebar-title">Danh mục</h2>
+                    <button class="sidebar-close-btn" id="sidebar-close-btn" aria-label="Đóng menu">&times;</button>
+                </div>
                 <ul class="category-list">
+
                     <?php if (!empty($categories)): ?>
                         <?php foreach ($categories as $category): ?>
                             <li>

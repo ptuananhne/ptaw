@@ -1,68 +1,107 @@
 document.addEventListener("DOMContentLoaded", function () {
-  // ... code menu mobile giữ nguyên ...
+  // --- LOGIC MENU DI ĐỘNG ---
   const menuToggle = document.getElementById("mobile-menu-toggle");
   const sidebar = document.getElementById("sidebar");
-  if (menuToggle && sidebar) {
-    menuToggle.addEventListener("click", function () {
-      sidebar.classList.toggle("is-open");
+  const overlay = document.getElementById("menu-overlay");
+  const closeBtn = document.getElementById("sidebar-close-btn");
+
+  const openMenu = () => {
+    sidebar.classList.add("is-open");
+    overlay.classList.add("is-active");
+    document.body.style.overflow = "hidden";
+  };
+
+  const closeMenu = () => {
+    sidebar.classList.remove("is-open");
+    overlay.classList.remove("is-active");
+    document.body.style.overflow = "";
+  };
+
+  if (menuToggle && sidebar && overlay && closeBtn) {
+    menuToggle.addEventListener("click", (e) => {
+      e.stopPropagation();
+      openMenu();
     });
+    overlay.addEventListener("click", closeMenu);
+    closeBtn.addEventListener("click", closeMenu);
   }
 
-  // --- CODE SLIDER ĐƯỢC NÂNG CẤP ---
+  // --- LOGIC SLIDER HOÀN CHỈNH V3 ---
   function initializeSlider(sliderElement) {
-    const trackContainer = sliderElement.querySelector(
-      ".slider-track-container"
-    );
     const track = sliderElement.querySelector(".slider-track");
     const prevBtn = sliderElement.querySelector(".slider-btn.prev");
     const nextBtn = sliderElement.querySelector(".slider-btn.next");
 
-    if (!track || !prevBtn || !nextBtn || !trackContainer) return;
+    if (!track || !prevBtn || !nextBtn) return;
 
-    // Hàm cập nhật trạng thái của nút
+    let isDragging = false,
+      startX,
+      startScrollLeft,
+      draggedDistance = 0;
+
     const updateButtons = () => {
-      const scrollLeft = track.scrollLeft;
-      const scrollWidth = track.scrollWidth;
-      const clientWidth = track.clientWidth;
-
-      // Vô hiệu hóa nút "prev" nếu đang ở đầu
-      prevBtn.disabled = scrollLeft <= 0;
-
-      // Vô hiệu hóa nút "next" nếu đã cuộn đến cuối
-      // Thêm một khoảng đệm nhỏ (1px) để xử lý sai số làm tròn
-      nextBtn.disabled = scrollLeft + clientWidth >= scrollWidth - 1;
+      const currentScroll = Math.round(track.scrollLeft);
+      const maxScroll = track.scrollWidth - track.clientWidth;
+      prevBtn.disabled = currentScroll <= 0;
+      nextBtn.disabled = currentScroll >= maxScroll;
     };
 
-    // Di chuyển đến slide tiếp theo
-    nextBtn.addEventListener("click", () => {
-      // Cuộn một khoảng bằng chiều rộng của phần hiển thị
-      track.scrollBy({ left: trackContainer.clientWidth, behavior: "smooth" });
+    const startDrag = (e) => {
+      isDragging = true;
+      draggedDistance = 0;
+      track.classList.add("active-drag");
+      startX = e.pageX || e.touches[0].pageX;
+      startScrollLeft = track.scrollLeft;
+    };
+
+    const onDrag = (e) => {
+      if (!isDragging) return;
+      e.preventDefault();
+      const currentX = e.pageX || e.touches[0].pageX;
+      const walk = currentX - startX;
+      draggedDistance = Math.abs(walk);
+      track.scrollLeft = startScrollLeft - walk;
+    };
+
+    const stopDrag = () => {
+      isDragging = false;
+      track.classList.remove("active-drag");
+    };
+
+    // Ngăn click vào link khi đang kéo
+    track.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", (e) => {
+        if (draggedDistance > 10) {
+          // Nếu kéo nhiều hơn 10px thì không cho click
+          e.preventDefault();
+        }
+      });
     });
 
-    // Di chuyển về slide trước đó
-    prevBtn.addEventListener("click", () => {
-      track.scrollBy({ left: -trackContainer.clientWidth, behavior: "smooth" });
-    });
+    // Gắn sự kiện
+    track.addEventListener("mousedown", startDrag);
+    track.addEventListener("touchstart", startDrag, { passive: true });
 
-    // Cập nhật trạng thái nút khi cuộn (kể cả khi người dùng tự kéo trên di động)
+    track.addEventListener("mousemove", onDrag);
+    track.addEventListener("touchmove", onDrag);
+
+    document.addEventListener("mouseup", stopDrag);
+    document.addEventListener("touchend", stopDrag);
+
+    // Nút bấm
+    const scrollAmount = () => track.clientWidth * 0.8; // Cuộn 80% chiều rộng
+    nextBtn.addEventListener("click", () =>
+      track.scrollBy({ left: scrollAmount(), behavior: "smooth" })
+    );
+    prevBtn.addEventListener("click", () =>
+      track.scrollBy({ left: -scrollAmount(), behavior: "smooth" })
+    );
+
+    // Cập nhật
     track.addEventListener("scroll", updateButtons);
-
-    // Cập nhật khi kích thước cửa sổ thay đổi
-    // Sử dụng debounce để tránh gọi hàm liên tục, tối ưu hiệu năng
-    let resizeTimer;
-    window.addEventListener("resize", () => {
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(updateButtons, 250);
-    });
-
-    // Cập nhật trạng thái nút lần đầu tiên khi tải trang
-    // Dùng setTimeout nhỏ để đảm bảo layout đã được render hoàn chỉnh
-    setTimeout(updateButtons, 100);
+    window.addEventListener("resize", () => setTimeout(updateButtons, 250));
+    setTimeout(updateButtons, 150);
   }
 
-  // Áp dụng cho tất cả các slider trên trang
-  const allSliders = document.querySelectorAll(".product-slider");
-  allSliders.forEach((slider) => {
-    initializeSlider(slider);
-  });
+  document.querySelectorAll(".product-slider").forEach(initializeSlider);
 });

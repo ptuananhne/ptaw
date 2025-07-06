@@ -7,7 +7,6 @@
             <img src="<?= BASE_URL . '/' . htmlspecialchars($activeBanner->image_url) ?>" alt="<?= htmlspecialchars($activeBanner->title ?? 'Banner') ?>">
         </a>
     <?php else: ?>
-        <!-- Fallback nếu không có banner -->
         <div class="hero-section-fallback">
             <h1>Khám Phá Thế Giới Công Nghệ</h1>
             <p>Sản phẩm công nghệ hàng đầu từ các thương hiệu nổi tiếng.</p>
