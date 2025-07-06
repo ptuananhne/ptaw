@@ -35,4 +35,29 @@ class Category
             return false;
         }
     }
+
+    /**
+     * Lấy tất cả thương hiệu thuộc về một danh mục.
+     * @param string $slug
+     * @return array
+     */
+    public function getBrandsByCategorySlug($slug)
+    {
+        try {
+            $query = "
+                SELECT b.id, b.name 
+                FROM brands b
+                JOIN category_brand cb ON b.id = cb.brand_id
+                JOIN categories c ON cb.category_id = c.id
+                WHERE c.slug = :slug
+                ORDER BY b.name ASC
+            ";
+            $stmt = $this->db->prepare($query);
+            $stmt->bindParam(':slug', $slug, PDO::PARAM_STR);
+            $stmt->execute();
+            return $stmt->fetchAll();
+        } catch (PDOException $e) {
+            return [];
+        }
+    }
 }

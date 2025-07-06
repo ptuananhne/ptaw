@@ -2,47 +2,56 @@
 class CategoryController extends Controller
 {
 
-    private $categoryModel;
-    private $productModel;
-
-    public function __construct()
-    {
-        $this->categoryModel = $this->model('Category');
-        $this->productModel = $this->model('Product');
-    }
-
-    /**
-     * Hiển thị trang danh sách sản phẩm theo danh mục.
-     * @param string $slug Slug của danh mục từ URL.
-     */
     public function index($slug = '')
     {
         if (empty($slug)) {
-            // Nếu không có slug, chuyển hướng về trang chủ hoặc trang lỗi
             header('Location: ' . BASE_URL);
             exit();
         }
 
-        // Lấy thông tin danh mục hiện tại
-        $category = $this->categoryModel->getCategoryBySlug($slug);
+        $categoryModel = $this->model('Category');
+        $productModel = $this->model('Product');
 
+        $category = $categoryModel->getCategoryBySlug($slug);
         if (!$category) {
-            // Xử lý trường hợp không tìm thấy danh mục (hiển thị trang 404)
             echo "404 - Category not found";
             exit();
         }
 
-        // Lấy tất cả sản phẩm thuộc danh mục này
-        $products = $this->productModel->getProductsByCategorySlug($slug);
+        // --- LỌC VÀ PHÂN TRANG ---
+        $products_per_page = 8;
+        $current_page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $offset = ($current_page - 1) * $products_per_page;
 
-        // Lấy tất cả danh mục để hiển thị trên header
-        $allCategories = $this->categoryModel->getAllCategories();
+        // Lấy các tham số lọc từ URL
+        $brand_filter = $_GET['brand'] ?? '';
+        $sort_filter = $_GET['sort'] ?? 'views_desc';
+
+        $filter_options = [
+            'category_slug' => $slug,
+            'brand_id' => $brand_filter,
+            'sort_by' => $sort_filter,
+        ];
+
+        // Đếm tổng số sản phẩm với bộ lọc hiện tại
+        $total_products = $productModel->countFilteredProducts($filter_options);
+        $total_pages = ceil($total_products / $products_per_page);
+
+        // Lấy sản phẩm cho trang hiện tại
+        $products = $productModel->getFilteredProducts(array_merge($filter_options, [
+            'limit' => $products_per_page,
+            'offset' => $offset
+        ]));
 
         $data = [
             'title' => 'Danh mục: ' . htmlspecialchars($category->name),
             'category' => $category,
             'products' => $products,
-            'categories' => $allCategories // Dữ liệu cho header
+            'brands' => $categoryModel->getBrandsByCategorySlug($slug),
+            'categories' => $categoryModel->getAllCategories(),
+            'pagination' => ['current' => $current_page, 'total' => $total_pages],
+            'filters' => ['brand' => $brand_filter, 'sort' => $sort_filter],
+            'current_category_slug' => $slug // Để highlight menu
         ];
 
         $this->view('client/category', $data);

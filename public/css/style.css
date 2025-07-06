@@ -1,30 +1,26 @@
 /*
-  File CSS hoàn chỉnh cho bố cục 2 cột (Sidebar + Content)
-  Thiết kế theo hướng Mobile-First và sử dụng biến CSS.
+  File CSS hoàn chỉnh, đã sửa lỗi sidebar và tích hợp slider.
 */
 
-/* --- 1. ĐỊNH NGHĨA BIẾN CSS TOÀN CỤC --- */
+/* --- 1. BIẾN CSS VÀ RESET --- */
 :root {
-  --color-primary: #3b82f6; /* Màu xanh chủ đạo (blue-500) */
-  --color-primary-dark: #2563eb; /* Màu xanh đậm hơn (blue-600) */
-  --color-text-dark: #1f2937; /* Màu chữ chính (gray-800) */
-  --color-text-light: #6b7280; /* Màu chữ phụ (gray-500) */
-  --color-surface: #ffffff; /* Màu nền của các thẻ (card, header) */
-  --color-background: #f8fafc; /* Màu nền của trang (slate-50) */
-  --color-border: #e5e7eb; /* Màu viền (gray-200) */
-
+  --color-primary: #3b82f6;
+  --color-primary-dark: #2563eb;
+  --color-text-dark: #1f2937;
+  --color-text-light: #6b7280;
+  --color-surface: #ffffff;
+  --color-background: #f8fafc;
+  --color-border: #e5e7eb;
   --font-family-sans: "Be Vietnam Pro", sans-serif;
   --sidebar-width: 250px;
   --header-height: 64px;
 }
 
-/* --- 2. RESET VÀ STYLES CƠ BẢN --- */
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
-
 body {
   font-family: var(--font-family-sans);
   background-color: var(--color-background);
@@ -32,7 +28,6 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-
 a {
   color: inherit;
   text-decoration: none;
@@ -42,15 +37,14 @@ a:hover {
   color: var(--color-primary);
 }
 
-/* --- 3. BỐ CỤC CHÍNH --- */
+/* --- 2. BỐ CỤC CHÍNH --- */
 .page-container {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: var(--header-height) 1fr auto;
   min-height: 100vh;
 }
-
 .top-header {
-  height: var(--header-height);
+  grid-row: 1 / 2;
   background-color: var(--color-surface);
   border-bottom: 1px solid var(--color-border);
   display: flex;
@@ -61,29 +55,50 @@ a:hover {
   top: 0;
   z-index: 40;
 }
-
 .main-wrapper {
+  grid-row: 2 / 3;
   display: flex;
-  flex: 1; /* Đây là thuộc tính quan trọng giúp đẩy footer xuống */
+  position: relative;
+  /* Đã xóa "overflow: hidden" để position:sticky hoạt động */
+}
+.main-footer {
+  grid-row: 3 / 4;
+  background-color: var(--color-text-dark);
+  color: var(--color-background);
+  padding: 2rem 1.5rem;
+  text-align: center;
 }
 
+/* --- 3. SIDEBAR VÀ CONTENT --- */
 .sidebar {
   width: var(--sidebar-width);
   background-color: var(--color-surface);
   border-right: 1px solid var(--color-border);
   padding: 1.5rem;
   transition: transform 0.3s ease;
+  position: sticky;
+  top: var(--header-height);
+  height: calc(100vh - var(--header-height));
+  overflow-y: auto;
 }
-
 .main-content {
   flex: 1;
   padding: 2rem;
   overflow-y: auto;
 }
 
-/* --- 4. CÁC THÀNH PHẦN GIAO DIỆN --- */
-
-/* Header */
+/* --- 4. CÁC THÀNH PHẦN KHÁC --- */
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.header-logo {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  display: none;
+}
 .header-search-wrapper {
   flex-grow: 1;
   display: flex;
@@ -104,7 +119,6 @@ a:hover {
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
 }
-
 .header-nav a {
   font-weight: 500;
   padding: 0.5rem 1rem;
@@ -114,16 +128,13 @@ a:hover {
 .header-nav a:hover {
   background-color: var(--color-background);
 }
-
 .mobile-menu-toggle {
-  display: none; /* Ẩn trên desktop */
+  display: block;
   background: none;
   border: none;
   cursor: pointer;
   padding: 0.5rem;
 }
-
-/* Sidebar */
 .sidebar-title {
   font-size: 1.25rem;
   font-weight: 600;
@@ -146,31 +157,94 @@ a:hover {
   transform: translateX(5px);
 }
 
-/* Product Card */
-.product-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+/* --- 5. BANNER VÀ SLIDER SẢN PHẨM --- */
+.banner-section {
+  margin-bottom: 2.5rem;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.banner-section img {
+  width: 100%;
+  display: block;
+}
+.hero-section-fallback {
+  background-color: var(--color-primary);
+  color: white;
+  padding: 3rem 1rem;
+  text-align: center;
+}
+.hero-section-fallback h1 {
+  font-size: 2.25rem;
+  font-weight: 700;
+}
+.hero-section-fallback p {
+  font-size: 1.125rem;
+  opacity: 0.9;
+  margin-top: 1rem;
+}
+
+.product-carousel-section {
+  margin-bottom: 2.5rem;
+}
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+.section-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+.see-all-link {
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.product-slider {
+  position: relative;
+}
+.slider-track-container {
+  overflow: hidden;
+}
+.slider-track {
+  display: flex;
   gap: 1.5rem;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.slider-track::-webkit-scrollbar {
+  display: none;
 }
 
 .product-card {
   background-color: var(--color-surface);
   border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   border: 1px solid var(--color-border);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 .product-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
-.product-card .product-image-wrapper {
+.product-card a {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.product-image-wrapper {
+  width: 100%;
+  aspect-ratio: 1 / 1;
   overflow: hidden;
 }
-.product-card .product-image {
+.product-image {
   width: 100%;
-  height: 224px; /* 14rem */
+  height: 100%;
   object-fit: cover;
   transition: transform 0.3s ease;
 }
@@ -178,7 +252,11 @@ a:hover {
   transform: scale(1.05);
 }
 .product-card-content {
-  padding: 1.5rem;
+  padding: 1rem;
+  border-top: 1px solid var(--color-border);
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
 }
 .product-card-category {
   font-size: 0.875rem;
@@ -189,9 +267,7 @@ a:hover {
   font-size: 1.125rem;
   font-weight: 600;
   color: var(--color-text-dark);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  flex-grow: 1;
 }
 .product-card-link {
   display: inline-block;
@@ -200,24 +276,71 @@ a:hover {
   color: var(--color-primary);
 }
 
-/* --- 5. RESPONSIVE (MOBILE-FIRST) --- */
+.slider-track .product-card {
+  flex: 0 0 25%;
+  max-width: 25%;
+}
+
+.slider-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--color-text-dark);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+.slider-btn:hover:not(:disabled) {
+  background-color: var(--color-primary);
+  color: white;
+  transform: translateY(-50%) scale(1.05);
+}
+.slider-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: translateY(-50%) scale(0.95);
+}
+.slider-btn.prev {
+  left: -20px;
+}
+.slider-btn.next {
+  right: -20px;
+}
+
+/* --- 6. RESPONSIVE --- */
+@media (max-width: 1024px) {
+  .slider-track .product-card {
+    flex-basis: 33.33%;
+    max-width: 33.33%;
+  }
+}
 @media (max-width: 768px) {
   .main-wrapper {
     flex-direction: column;
+    overflow: visible;
   }
   .sidebar {
     width: 80%;
     max-width: 300px;
-    border-right: none;
-    border-bottom: 1px solid var(--color-border);
     position: fixed;
     top: 0;
     left: 0;
     height: 100vh;
     transform: translateX(-100%);
     z-index: 50;
-    overflow-y: auto;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    border-right: 1px solid var(--color-border);
   }
   .sidebar.is-open {
     transform: translateX(0);
@@ -225,32 +348,274 @@ a:hover {
   .main-content {
     padding: 1rem;
   }
-  .mobile-menu-toggle {
-    display: block;
-  }
   .header-nav {
-    display: none; /* Ẩn link trang chủ trên mobile để tiết kiệm không gian */
+    display: none;
   }
   .top-header {
     padding: 0 1rem;
   }
+  .slider-track .product-card {
+    flex-basis: 50%;
+    max-width: 50%;
+  }
+  .slider-btn.prev {
+    left: 5px;
+  }
+  .slider-btn.next {
+    right: 5px;
+  }
+}
+@media (max-width: 480px) {
+  .slider-track .product-card {
+    flex-basis: 80%;
+    max-width: 80%;
+  }
+}
+@media (min-width: 769px) {
+  .mobile-menu-toggle {
+    display: none;
+  }
+  .header-logo {
+    display: block;
+  }
 }
 
-/* --- 6. FOOTER --- */
-.main-footer {
-  background-color: var(--color-text-dark);
-  color: var(--color-background);
-  padding: 2rem 1.5rem;
-  text-align: center;
-  border-top: 1px solid #374151; /* gray-700 */
-}
-
+/* --- 7. FOOTER STYLING --- */
 .main-footer p {
   margin: 0;
   color: var(--color-text-light);
 }
-
 .main-footer a {
   color: var(--color-primary);
   font-weight: 500;
+}
+/* --- 8. PAGE-SPECIFIC STYLES (Thêm vào cuối file) --- */
+
+/* Category & Search Page Header */
+.page-header {
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.breadcrumb ol {
+  display: flex;
+  flex-wrap: wrap;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  color: var(--color-text-light);
+  font-size: 0.875rem;
+}
+
+.breadcrumb li:not(:last-child)::after {
+  content: "/";
+  margin: 0 0.5rem;
+  color: var(--color-border);
+}
+
+.page-title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin-top: 0.5rem;
+  color: var(--color-text-dark);
+}
+
+.empty-state {
+  grid-column: 1 / -1; /* Trải dài hết các cột của grid */
+  text-align: center;
+  padding: 4rem 1rem;
+  background-color: var(--color-surface);
+  border-radius: 8px;
+  border: 1px dashed var(--color-border);
+}
+
+.empty-state p {
+  font-size: 1.125rem;
+  color: var(--color-text-light);
+}
+/* --- 9. PRODUCT DETAIL PAGE --- */
+.product-main-info {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .product-main-info {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Gallery */
+.product-gallery .main-image {
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  overflow: hidden;
+  aspect-ratio: 1 / 1;
+}
+.product-gallery .main-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.thumbnail-list {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+.thumbnail-item {
+  width: 64px;
+  height: 64px;
+  border: 2px solid var(--color-border);
+  border-radius: 6px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+.thumbnail-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.thumbnail-item:hover,
+.thumbnail-item.active {
+  border-color: var(--color-primary);
+}
+
+/* Info */
+.product-title {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.product-meta {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border);
+  font-size: 0.875rem;
+  color: var(--color-text-light);
+}
+.meta-link {
+  color: var(--color-primary);
+  font-weight: 500;
+}
+.product-description {
+  margin-top: 1rem;
+}
+.section-heading {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+.product-description p {
+  line-height: 1.6;
+  color: var(--color-text-light);
+}
+
+/* Specs */
+.product-specs {
+  margin-top: 2.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border);
+}
+.specs-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.specs-table tr {
+  border-bottom: 1px solid var(--color-border);
+}
+.specs-table td {
+  padding: 0.75rem;
+}
+.specs-table tr:nth-child(odd) {
+  background-color: #f9fafb; /* gray-50 */
+}
+.specs-table td:first-child {
+  font-weight: 500;
+  width: 30%;
+}
+/* Thêm vào cuối file */
+
+/* Active state for sidebar and breadcrumb */
+.category-list a.active {
+  background-color: var(--color-primary);
+  color: white;
+  font-weight: 600;
+}
+.breadcrumb li.active {
+  color: var(--color-text-dark);
+  font-weight: 500;
+}
+
+/* Filter Bar */
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  padding: 1rem;
+  background-color: var(--color-surface);
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  border: 1px solid var(--color-border);
+}
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.filter-group label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-light);
+}
+.filter-group select {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  border: 1px solid var(--color-border);
+  min-width: 200px;
+}
+.filter-button {
+  align-self: flex-end;
+  padding: 0.5rem 1.5rem;
+  border: none;
+  background-color: var(--color-primary);
+  color: white;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 2.5rem;
+}
+.pagination ul {
+  display: flex;
+  list-style: none;
+  gap: 0.5rem;
+}
+.pagination a {
+  display: block;
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+}
+.pagination a:hover {
+  border-color: var(--color-primary);
+}
+.pagination a.active {
+  background-color: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+  font-weight: 600;
 }

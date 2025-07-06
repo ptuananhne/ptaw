@@ -1,6 +1,7 @@
 <?php
 // Định nghĩa đường dẫn gốc của website
-define('BASE_URL', 'http://localhost/pta');
+// Sửa lại cho đúng với ServerName trong cấu hình Virtual Host của bạn
+define('BASE_URL', 'http://pta.test');
 
 // Cấu hình kết nối Cơ sở dữ liệu
 define('DB_HOST', 'localhost');

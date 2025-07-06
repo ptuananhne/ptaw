@@ -1,58 +1,82 @@
-<?php
-// Tải header
-$this->view('client/layouts/header', $data);
-?>
+<?php $this->view('client/layouts/header', $data); ?>
 
-<div class="mb-8">
-    <!-- Breadcrumb -->
-    <nav class="text-sm text-gray-500" aria-label="Breadcrumb">
-        <ol class="list-none p-0 inline-flex">
-            <li class="flex items-center">
-                <a href="<?= BASE_URL ?>" class="hover:text-blue-600">Trang chủ</a>
-                <svg class="fill-current w-3 h-3 mx-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
-                    <path d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z" />
-                </svg>
-            </li>
-            <li>
-                <span class="font-semibold text-gray-700">
-                    <?= htmlspecialchars($category->name) ?>
-                </span>
-            </li>
+<div class="page-header">
+    <nav class="breadcrumb" aria-label="breadcrumb">
+        <ol>
+            <li><a href="<?= BASE_URL ?>">Trang chủ</a></li>
+            <li class="active"><?= htmlspecialchars($category->name) ?></li>
         </ol>
     </nav>
-    <h1 class="text-4xl font-bold text-gray-800 mt-2">
-        Danh mục: <?= htmlspecialchars($category->name) ?>
-    </h1>
+    <h1 class="page-title"><?= htmlspecialchars($category->name) ?></h1>
 </div>
 
-<!-- Product Listing -->
-<section>
-    <?php if (!empty($products)): ?>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            <?php foreach ($products as $product): ?>
-                <div class="bg-white rounded-lg shadow-md overflow-hidden transform hover:-translate-y-2 transition-transform duration-300">
-                    <a href="<?= BASE_URL . '/product/' . $product->slug ?>" class="block">
-                        <img src="<?= BASE_URL . '/' . htmlspecialchars($product->image_url ?? 'https://placehold.co/600x600/CCCCCC/FFFFFF?text=No+Image') ?>" alt="<?= htmlspecialchars($product->name) ?>" class="w-full h-56 object-cover">
-                        <div class="p-6">
-                            <p class="text-sm text-gray-500 mb-1"><?= htmlspecialchars($product->category_name) ?></p>
-                            <h3 class="text-lg font-semibold text-gray-900 truncate"><?= htmlspecialchars($product->name) ?></h3>
-                            <div class="mt-4">
-                                <span class="text-blue-600 font-bold">Xem chi tiết</span>
-                            </div>
-                        </div>
-                    </a>
-                </div>
+<!-- Filter Bar -->
+<form class="filter-bar" method="GET" action="">
+    <div class="filter-group">
+        <label for="brand-filter">Thương hiệu</label>
+        <select name="brand" id="brand-filter">
+            <option value="">Tất cả</option>
+            <?php foreach ($brands as $brand): ?>
+                <option value="<?= $brand->id ?>" <?= ($filters['brand'] == $brand->id) ? 'selected' : '' ?>>
+                    <?= htmlspecialchars($brand->name) ?>
+                </option>
             <?php endforeach; ?>
-        </div>
+        </select>
+    </div>
+    <div class="filter-group">
+        <label for="sort-filter">Sắp xếp</label>
+        <select name="sort" id="sort-filter">
+            <option value="views_desc" <?= ($filters['sort'] == 'views_desc') ? 'selected' : '' ?>>Xem nhiều nhất</option>
+            <option value="newest" <?= ($filters['sort'] == 'newest') ? 'selected' : '' ?>>Mới nhất</option>
+            <option value="price_asc" <?= ($filters['sort'] == 'price_asc') ? 'selected' : '' ?>>Giá tăng dần</option>
+            <option value="price_desc" <?= ($filters['sort'] == 'price_desc') ? 'selected' : '' ?>>Giá giảm dần</option>
+        </select>
+    </div>
+    <button type="submit" class="filter-button">Lọc</button>
+</form>
+
+<!-- Product Grid -->
+<div class="product-grid">
+    <?php if (!empty($products)): ?>
+        <?php foreach ($products as $product): ?>
+            <div class="product-card">
+                <a href="<?= BASE_URL . '/product/' . $product->slug ?>">
+                    <div class="product-image-wrapper">
+                        <img class="product-image" src="<?= BASE_URL . '/' . htmlspecialchars($product->image_url ?? '') ?>" alt="<?= htmlspecialchars($product->name) ?>">
+                    </div>
+                    <div class="product-card-content">
+                        <p class="product-card-category"><?= htmlspecialchars($product->category_name) ?></p>
+                        <h3 class="product-card-name"><?= htmlspecialchars($product->name) ?></h3>
+                        <span class="product-card-link">Xem chi tiết</span>
+                    </div>
+                </a>
+            </div>
+        <?php endforeach; ?>
     <?php else: ?>
-        <div class="text-center py-16 bg-gray-100 rounded-lg">
-            <h2 class="text-2xl font-semibold text-gray-700">Rất tiếc!</h2>
-            <p class="text-gray-500 mt-2">Chưa có sản phẩm nào trong danh mục này.</p>
+        <div class="empty-state">
+            <p>Không tìm thấy sản phẩm nào phù hợp.</p>
         </div>
     <?php endif; ?>
-</section>
+</div>
 
-<?php
-// Tải footer
-$this->view('client/layouts/footer', $data);
-?>
+<!-- Pagination -->
+<?php if ($pagination['total'] > 1): ?>
+    <nav class="pagination">
+        <ul>
+            <?php
+            // Chuẩn bị query string cho các bộ lọc hiện tại
+            $queryString = http_build_query($filters);
+            ?>
+            <?php for ($i = 1; $i <= $pagination['total']; $i++): ?>
+                <li>
+                    <a href="?page=<?= $i ?>&<?= $queryString ?>"
+                        class="<?= ($pagination['current'] == $i) ? 'active' : '' ?>">
+                        <?= $i ?>
+                    </a>
+                </li>
+            <?php endfor; ?>
+        </ul>
+    </nav>
+<?php endif; ?>
+
+<?php $this->view('client/layouts/footer', $data); ?>
