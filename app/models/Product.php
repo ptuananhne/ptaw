@@ -26,7 +26,7 @@ class Product
     {
         try {
             $query = "
-                SELECT p.name, p.slug, p.image_url, c.name as category_name
+                SELECT p.name, p.slug, p.image_url, p.price, c.name as category_name
                 FROM products p JOIN categories c ON p.category_id = c.id
                 ORDER BY p.view_count DESC, p.created_at DESC
                 LIMIT :limit";
@@ -39,11 +39,14 @@ class Product
         }
     }
 
+    /**
+     * @deprecated This method causes N+1 query problem. Use getTopProductsGroupedByAllCategories instead.
+     */
     public function getTopViewedProductsByCategory($categoryId, $limit = 8)
     {
         try {
             $query = "
-                SELECT p.name, p.slug, p.image_url, c.name as category_name
+                SELECT p.name, p.slug, p.image_url, p.price, c.name as category_name
                 FROM products p JOIN categories c ON p.category_id = c.id
                 WHERE p.category_id = :category_id
                 ORDER BY p.view_count DESC, p.created_at DESC
@@ -57,6 +60,52 @@ class Product
             return [];
         }
     }
+
+    /**
+     * PHƯƠNG THỨC MỚI ĐƯỢC TỐI ƯU HÓA
+     * Lấy các sản phẩm hàng đầu, được nhóm theo tất cả các danh mục, chỉ bằng một truy vấn.
+     * @param int $limit Số lượng sản phẩm mỗi danh mục
+     * @return array Mảng các sản phẩm đã được nhóm
+     */
+    public function getTopProductsGroupedByAllCategories($limit = 8)
+    {
+        try {
+            // Sử dụng ROW_NUMBER() để xếp hạng sản phẩm trong mỗi danh mục
+            $query = "
+                WITH RankedProducts AS (
+                    SELECT
+                        p.id, p.name, p.slug, p.image_url, p.price,
+                        c.id as category_id, c.name as category_name, c.slug as category_slug,
+                        ROW_NUMBER() OVER(PARTITION BY p.category_id ORDER BY p.view_count DESC, p.created_at DESC) as rn
+                    FROM products p
+                    JOIN categories c ON p.category_id = c.id
+                )
+                SELECT * FROM RankedProducts WHERE rn <= :limit
+            ";
+            $stmt = $this->db->prepare($query);
+            $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+            $stmt->execute();
+            $allProducts = $stmt->fetchAll();
+
+            // Nhóm kết quả lại bằng PHP
+            $groupedResult = [];
+            foreach ($allProducts as $product) {
+                if (!isset($groupedResult[$product->category_name])) {
+                    $groupedResult[$product->category_name] = [
+                        'slug' => $product->category_slug,
+                        'products' => []
+                    ];
+                }
+                $groupedResult[$product->category_name]['products'][] = $product;
+            }
+            return $groupedResult;
+        } catch (PDOException $e) {
+            // Trong môi trường thực tế, bạn nên log lỗi này
+            // error_log($e->getMessage());
+            return [];
+        }
+    }
+
 
     // --- CÁC HÀM CHO TRANG DANH MỤC ---
     public function getFilteredProducts($options = [])
@@ -170,11 +219,8 @@ class Product
         } catch (PDOException $e) { /* Do nothing */
         }
     }
-    /**
-     * Tìm kiếm sản phẩm theo từ khóa, có phân trang.
-     * @param array $options
-     * @return array
-     */
+
+    // --- CÁC HÀM CHO TRANG TÌM KIẾM ---
     public function searchProducts($options = [])
     {
         $query = "SELECT p.*, c.name as category_name FROM products p JOIN categories c ON p.category_id = c.id";
@@ -189,7 +235,6 @@ class Product
         if (!empty($whereClauses)) {
             $query .= " WHERE " . implode(" AND ", $whereClauses);
         }
-
         $query .= " ORDER BY p.view_count DESC";
 
         if (isset($options['limit'])) {
@@ -210,11 +255,6 @@ class Product
         }
     }
 
-    /**
-     * Đếm tổng số sản phẩm tìm thấy.
-     * @param array $options
-     * @return int
-     */
     public function countSearchedProducts($options = [])
     {
         $query = "SELECT COUNT(p.id) as total FROM products p";

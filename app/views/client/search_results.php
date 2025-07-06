@@ -2,7 +2,7 @@
 
 <div class="page-header">
     <h1 class="page-title">
-        Tìm kiếm
+        Kết quả tìm kiếm
     </h1>
     <p class="search-summary">
         Tìm thấy <?= $total_results ?> kết quả cho từ khóa "<strong><?= htmlspecialchars($keyword) ?></strong>"
@@ -18,9 +18,20 @@
                         <img class="product-image" src="<?= BASE_URL . '/' . htmlspecialchars($product->image_url ?? '') ?>" alt="<?= htmlspecialchars($product->name) ?>">
                     </div>
                     <div class="product-card-content">
-                        <p class="product-card-category"><?= htmlspecialchars($product->category_name) ?></p>
-                        <h3 class="product-card-name"><?= htmlspecialchars($product->name) ?></h3>
-                        <span class="product-card-link">Xem chi tiết</span>
+                        <div>
+                            <p class="product-card-category"><?= htmlspecialchars($product->category_name) ?></p>
+                            <h3 class="product-card-name"><?= htmlspecialchars($product->name) ?></h3>
+                        </div>
+                        <div>
+                            <p class="product-card-price">
+                                <?php if (isset($product->price) && $product->price > 0): ?>
+                                    <?= number_format($product->price, 0, ',', '.') ?> đ
+                                <?php else: ?>
+                                    Liên hệ
+                                <?php endif; ?>
+                            </p>
+                            <span class="product-card-link">Xem chi tiết</span>
+                        </div>
                     </div>
                 </a>
             </div>
@@ -32,8 +43,7 @@
     <?php endif; ?>
 </div>
 
-<!-- Pagination -->
-<?php if ($pagination['total'] > 1): ?>
+<?php if (isset($pagination) && $pagination['total'] > 1): ?>
     <nav class="pagination">
         <ul>
             <?php for ($i = 1; $i <= $pagination['total']; $i++): ?>

@@ -1,20 +1,32 @@
 <?php $this->view('client/layouts/header', $data); ?>
 
-<!-- 1. Banner Section -->
 <section class="banner-section">
-    <?php if (!empty($activeBanner)): ?>
-        <a href="<?= htmlspecialchars($activeBanner->link_url ?? '#') ?>">
-            <img src="<?= BASE_URL . '/' . htmlspecialchars($activeBanner->image_url) ?>" alt="<?= htmlspecialchars($activeBanner->title ?? 'Banner') ?>">
-        </a>
-    <?php else: ?>
-        <div class="hero-section-fallback">
-            <h1>Khám Phá Thế Giới Công Nghệ</h1>
-            <p>Sản phẩm công nghệ hàng đầu từ các thương hiệu nổi tiếng.</p>
+    <div class="banner-slider-container">
+        <div class="banner-track">
+            <?php if (!empty($banners)): ?>
+                <?php foreach ($banners as $banner): ?>
+                    <div class="banner-slide">
+                        <a href="<?= htmlspecialchars($banner->link_url ?? '#') ?>">
+                            <img src="<?= BASE_URL . '/' . htmlspecialchars($banner->image_url) ?>" alt="<?= htmlspecialchars($banner->title ?? 'Banner') ?>">
+                        </a>
+                    </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <div class="banner-slide">
+                    <div class="hero-section-fallback">
+                        <h1>Khám Phá Thế Giới Công Nghệ</h1>
+                        <p>Sản phẩm công nghệ hàng đầu từ các thương hiệu nổi tiếng.</p>
+                    </div>
+                </div>
+            <?php endif; ?>
         </div>
-    <?php endif; ?>
+        <?php if (!empty($banners) && count($banners) > 1): ?>
+            <button class="banner-btn prev" aria-label="Previous Banner">&lt;</button>
+            <button class="banner-btn next" aria-label="Next Banner">&gt;</button>
+        <?php endif; ?>
+    </div>
 </section>
 
-<!-- 2. Featured Products Slider -->
 <?php if (!empty($featuredProducts)): ?>
     <section class="product-carousel-section">
         <h2 class="section-title">Sản phẩm nổi bật</h2>
@@ -29,14 +41,14 @@
                                     <img class="product-image" src="<?= BASE_URL . '/' . htmlspecialchars($product->image_url ?? '') ?>" alt="<?= htmlspecialchars($product->name) ?>">
                                 </div>
                                 <div class="product-card-content">
-                                    <div class="product-card-top">
+                                    <div>
                                         <p class="product-card-category"><?= htmlspecialchars($product->category_name) ?></p>
                                         <h3 class="product-card-name"><?= htmlspecialchars($product->name) ?></h3>
                                     </div>
-                                    <div class="product-card-bottom">
+                                    <div>
                                         <p class="product-card-price">
                                             <?php if (isset($product->price) && $product->price > 0): ?>
-                                                <?= number_format($product->price, 0, ',', '.') ?>đ
+                                                <?= number_format($product->price, 0, ',', '.') ?> đ
                                             <?php else: ?>
                                                 Liên hệ
                                             <?php endif; ?>
@@ -55,7 +67,6 @@
 <?php endif; ?>
 
 
-<!-- 3. Sliders for Each Category -->
 <?php if (!empty($productsByCategory)): ?>
     <?php foreach ($productsByCategory as $categoryName => $categoryData): ?>
         <?php if (!empty($categoryData['products'])): ?>
@@ -75,9 +86,20 @@
                                             <img class="product-image" src="<?= BASE_URL . '/' . htmlspecialchars($product->image_url ?? '') ?>" alt="<?= htmlspecialchars($product->name) ?>">
                                         </div>
                                         <div class="product-card-content">
-                                            <p class="product-card-category"><?= htmlspecialchars($product->category_name) ?></p>
-                                            <h3 class="product-card-name"><?= htmlspecialchars($product->name) ?></h3>
-                                            <span class="product-card-link">Xem chi tiết</span>
+                                            <div>
+                                                <p class="product-card-category"><?= htmlspecialchars($product->category_name) ?></p>
+                                                <h3 class="product-card-name"><?= htmlspecialchars($product->name) ?></h3>
+                                            </div>
+                                            <div>
+                                                <p class="product-card-price">
+                                                    <?php if (isset($product->price) && $product->price > 0): ?>
+                                                        <?= number_format($product->price, 0, ',', '.') ?> đ
+                                                    <?php else: ?>
+                                                        Liên hệ
+                                                    <?php endif; ?>
+                                                </p>
+                                                <span class="product-card-link">Xem chi tiết</span>
+                                            </div>
                                         </div>
                                     </a>
                                 </div>
