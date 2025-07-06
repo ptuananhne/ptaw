@@ -1,3 +1,7 @@
+/*
+  File CSS hoàn chỉnh, được nâng cấp để có giao diện hiện đại và nhiều hiệu ứng hơn.
+*/
+
 /* --- 1. BIẾN CSS VÀ RESET --- */
 :root {
   --color-primary: #3b82f6;
@@ -517,69 +521,8 @@ a:hover {
   color: var(--color-primary);
   font-weight: 500;
 }
-
-/* Price Box */
-.product-price-box {
-  background-color: var(--color-background);
-  border: 1px solid var(--color-border);
-  padding: 1.5rem;
-  border-radius: var(--border-radius);
-  margin-top: 1.5rem;
-}
-.product-price {
-  font-size: 2.25rem;
-  font-weight: 700;
-  color: var(--color-primary);
-  line-height: 1;
-}
-.price-label {
-  font-size: 1rem;
-  color: var(--color-text-light);
-  margin-bottom: 0.5rem;
-}
-
-/* Contact Actions */
-.contact-actions {
-  margin-top: 1.5rem;
-  display: grid;
-  gap: 1rem;
-}
-.contact-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
-  padding: 0.875rem 1rem;
-  border-radius: 6px;
-  font-size: 1rem;
-  font-weight: 600;
-  color: white;
-  text-align: center;
-  border: none;
-  cursor: pointer;
-  transition: all var(--transition-speed) ease;
-}
-.contact-btn:hover {
-  opacity: 0.9;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
-.contact-btn.facebook {
-  background-color: #1877f2;
-}
-.contact-btn.zalo {
-  background-color: #0068ff;
-}
-.contact-btn.phone {
-  background-color: #4caf50;
-}
-.contact-btn svg {
-  width: 24px;
-  height: 24px;
-}
-
 .product-description {
-  margin-top: 1.5rem;
+  margin-top: 1rem;
 }
 .section-heading {
   font-size: 1.25rem;
