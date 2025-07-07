@@ -246,18 +246,4 @@ document.addEventListener("DOMContentLoaded", function () {
       observer.observe(element);
     });
   }
-  const imageGrid = document.getElementById("image-selection-grid");
-  if (imageGrid) {
-    imageGrid.addEventListener("click", function (e) {
-      // Tìm element .image-card gần nhất với vị trí click
-      const card = e.target.closest(".image-card");
-      if (card) {
-        // Tìm radio button bên trong card đó và check nó
-        const radio = card.querySelector('input[type="radio"]');
-        if (radio) {
-          radio.checked = true;
-        }
-      }
-    });
-  }
 });
