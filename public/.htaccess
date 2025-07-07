@@ -1,6 +1,16 @@
 <IfModule mod_rewrite.c>
-  RewriteEngine On
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
+    RewriteEngine On
+
+    # Bỏ qua các quy tắc viết lại nếu request là một file hoặc thư mục đã tồn tại
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Quy tắc cho trang ADMIN
+    # Chuyển hướng các URL bắt đầu bằng "admin" (ví dụ: /admin, /admin/dashboard) đến admin.php
+    RewriteRule ^admin/?(.*)$ admin.php?url=$1 [QSA,L]
+
+    # Quy tắc cho trang CLIENT
+    # Chuyển hướng tất cả các URL còn lại đến index.php
+    RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
 </IfModule>

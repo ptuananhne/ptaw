@@ -1,19 +1,8 @@
-/*
-  ================================================================================
-  == FILE CSS HOÀN CHỈNH NHẤT - PHIÊN BẢN 11.0
-  == Tác giả: Gemini
-  == Ngày: 2025-07-06
-  ==
-  == Mô tả: Phiên bản cuối cùng, sửa lỗi vỡ bố cục slider trên trang chủ khi
-  == không có sản phẩm. Tối ưu hóa và làm sạch toàn bộ mã nguồn.
-  ================================================================================
-*/
-
 /* --- 1. CÀI ĐẶT BIẾN TOÀN CỤC & RESET --- */
 :root {
-  --color-primary: #007bff;
+  --color-primary: #2fdf18;
   --color-primary-rgb: 0, 123, 255;
-  --color-primary-dark: #0056b3;
+  --color-primary-dark: #16a34a;
   --color-primary-light: #e6f2ff;
   --color-secondary: #6c757d;
   --color-text: #212529;

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($title ?? 'PTA | Thế giới công nghệ') ?></title>
+    <title><?= htmlspecialchars($title ?? 'Phút 89') ?></title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -49,7 +49,7 @@
         <!-- Main Header -->
         <header class="top-header">
             <div class="header-container">
-                <a href="<?= BASE_URL ?>" class="header-logo">PTA</a>
+                <a href="<?= BASE_URL ?>" class="header-logo">Phút 89</a>
 
                 <div class="header-search-wrapper">
                     <form action="<?= BASE_URL ?>/search" method="GET" style="width: 100%;">

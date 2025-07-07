@@ -33,8 +33,9 @@ class Product
             $stmt = $this->db->prepare($query);
             $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
             $stmt->execute();
-            return $stmt->fetchAll();
+            return $stmt->fetchAll(PDO::FETCH_OBJ);
         } catch (PDOException $e) {
+            error_log($e->getMessage());
             return [];
         }
     }
@@ -56,7 +57,7 @@ class Product
             $stmt = $this->db->prepare($query);
             $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
             $stmt->execute();
-            $allProducts = $stmt->fetchAll();
+            $allProducts = $stmt->fetchAll(PDO::FETCH_OBJ);
 
             $groupedResult = [];
             foreach ($allProducts as $product) {
@@ -70,10 +71,32 @@ class Product
             }
             return $groupedResult;
         } catch (PDOException $e) {
+            error_log($e->getMessage());
             return [];
         }
     }
 
+    public function countAll()
+    {
+        try {
+            $stmt = $this->db->query("SELECT COUNT(*) FROM products");
+            return (int) $stmt->fetchColumn();
+        } catch (PDOException $e) {
+            error_log($e->getMessage());
+            return 0;
+        }
+    }
+
+    public function getAll()
+    {
+        try {
+            $stmt = $this->db->query("SELECT * FROM products ORDER BY created_at DESC");
+            return $stmt->fetchAll(PDO::FETCH_OBJ);
+        } catch (PDOException $e) {
+            error_log($e->getMessage());
+            return [];
+        }
+    }
 
     // --- CÁC HÀM CHO TRANG DANH MỤC ---
     public function getFilteredProducts($options = [])
@@ -116,8 +139,9 @@ class Product
                 $stmt->bindParam($key, $val, $type);
             }
             $stmt->execute();
-            return $stmt->fetchAll();
+            return $stmt->fetchAll(PDO::FETCH_OBJ);
         } catch (PDOException $e) {
+            error_log($e->getMessage());
             return [];
         }
     }
@@ -140,9 +164,10 @@ class Product
                 $stmt->bindParam($key, $val, $type);
             }
             $stmt->execute();
-            $result = $stmt->fetch();
+            $result = $stmt->fetch(PDO::FETCH_OBJ);
             return $result ? (int)$result->total : 0;
         } catch (PDOException $e) {
+            error_log($e->getMessage());
             return 0;
         }
     }
@@ -160,8 +185,9 @@ class Product
             $stmt = $this->db->prepare($query);
             $stmt->bindParam(':slug', $slug, PDO::PARAM_STR);
             $stmt->execute();
-            return $stmt->fetch();
+            return $stmt->fetch(PDO::FETCH_OBJ);
         } catch (PDOException $e) {
+            error_log($e->getMessage());
             return false;
         }
     }
@@ -172,26 +198,32 @@ class Product
             $stmt = $this->db->prepare("SELECT image_url, alt_text FROM product_gallery WHERE product_id = :product_id ORDER BY sort_order ASC");
             $stmt->bindParam(':product_id', $productId, PDO::PARAM_INT);
             $stmt->execute();
-            return $stmt->fetchAll();
+            return $stmt->fetchAll(PDO::FETCH_OBJ);
         } catch (PDOException $e) {
+            error_log($e->getMessage());
             return [];
         }
     }
 
+    /**
+     * Tăng lượt xem cho sản phẩm.
+     * @param int $productId ID của sản phẩm cần tăng lượt xem.
+     */
     public function incrementViewCount($productId)
     {
         try {
             $stmt = $this->db->prepare("UPDATE products SET view_count = view_count + 1 WHERE id = :product_id");
             $stmt->bindParam(':product_id', $productId, PDO::PARAM_INT);
             $stmt->execute();
-        } catch (PDOException $e) { /* Do nothing */
+        } catch (PDOException $e) {
+            // Ghi lại lỗi để debug nhưng không làm dừng chương trình
+            error_log("Could not increment view count for product ID $productId: " . $e->getMessage());
         }
     }
 
     // --- CÁC HÀM CHO TRANG TÌM KIẾM ---
     public function searchProducts($options = [])
     {
-        // Sử dụng LEFT JOIN để an toàn hơn, phòng trường hợp sản phẩm không có category
         $query = "SELECT p.*, c.name as category_name 
                   FROM products p 
                   LEFT JOIN categories c ON p.category_id = c.id";
@@ -217,22 +249,19 @@ class Product
         try {
             $stmt = $this->db->prepare($query);
             foreach ($params as $key => &$val) {
-                // Xác định kiểu dữ liệu để bind param chính xác hơn
                 $type = is_int($val) ? PDO::PARAM_INT : PDO::PARAM_STR;
                 $stmt->bindParam($key, $val, $type);
             }
             $stmt->execute();
-            return $stmt->fetchAll();
+            return $stmt->fetchAll(PDO::FETCH_OBJ);
         } catch (PDOException $e) {
-            // Log lỗi để debug
-            // error_log($e->getMessage());
+            error_log($e->getMessage());
             return [];
         }
     }
 
     public function countSearchedProducts($options = [])
     {
-        // SỬA LỖI: Thêm JOIN để đồng bộ với hàm searchProducts
         $query = "SELECT COUNT(p.id) as total 
                   FROM products p 
                   LEFT JOIN categories c ON p.category_id = c.id";
@@ -254,11 +283,10 @@ class Product
                 $stmt->bindParam($key, $val);
             }
             $stmt->execute();
-            $result = $stmt->fetch();
+            $result = $stmt->fetch(PDO::FETCH_OBJ);
             return $result ? (int)$result->total : 0;
         } catch (PDOException $e) {
-            // Log lỗi để debug
-            // error_log($e->getMessage());
+            error_log($e->getMessage());
             return 0;
         }
     }
