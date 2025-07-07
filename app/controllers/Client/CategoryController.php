@@ -1,59 +1,83 @@
 <?php
+// File: app/controllers/Client/CategoryController.php
+
 class CategoryController extends Controller
 {
-
-    public function index($slug = '')
+    /**
+     * Hiển thị trang danh sách sản phẩm của một danh mục cụ thể.
+     * Hỗ trợ phân trang và lọc theo đúng cấu trúc ban đầu.
+     * @param string $slug Slug của danh mục.
+     * @param int $page Số trang hiện tại.
+     */
+    public function index($slug = '', $page = 1)
     {
+        // Nếu không có slug, chuyển hướng về trang chủ
         if (empty($slug)) {
-            header('Location: ' . BASE_URL);
-            exit();
+            redirect(BASE_URL);
+            return;
         }
 
+        // Nạp các model cần thiết
         $categoryModel = $this->model('Category');
         $productModel = $this->model('Product');
 
-        $category = $categoryModel->getCategoryBySlug($slug);
-        if (!$category) {
-            echo "404 - Category not found";
-            exit();
+        // Lấy thông tin của danh mục hiện tại bằng slug
+        $currentCategory = $categoryModel->getCategoryBySlug($slug);
+
+        // Nếu không tìm thấy danh mục, hiển thị trang lỗi 404
+        if (!$currentCategory) {
+            http_response_code(404);
+            $this->view('client/404');
+            return;
         }
 
-        // --- LỌC VÀ PHÂN TRANG ---
-        $products_per_page = 8;
-        $current_page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-        $offset = ($current_page - 1) * $products_per_page;
+        // --- PHỤC HỒI LẠI TÊN BIẾN BỘ LỌC THEO YÊU CẦU ---
+        $filters = [
+            'brand' => $_GET['brand'] ?? null,
+            'sort'  => $_GET['sort'] ?? 'views_desc'
+        ];
 
-        // Lấy các tham số lọc từ URL
-        $brand_filter = $_GET['brand'] ?? '';
-        $sort_filter = $_GET['sort'] ?? 'views_desc';
+        // --- Xử lý Phân trang ---
+        $limit = 8; // Cấu hình: 12 sản phẩm mỗi trang
+        $offset = ($page > 1) ? ($page - 1) * $limit : 0;
 
-        $filter_options = [
+        // Các tùy chọn để truy vấn CSDL (vẫn dùng key chuẩn của Model)
+        $options = [
             'category_slug' => $slug,
-            'brand_id' => $brand_filter,
-            'sort_by' => $sort_filter,
+            'brand_id'      => $filters['brand'],
+            'sort_by'       => $filters['sort'],
+            'limit'         => $limit,
+            'offset'        => $offset
         ];
 
-        // Đếm tổng số sản phẩm với bộ lọc hiện tại
-        $total_products = $productModel->countFilteredProducts($filter_options);
-        $total_pages = ceil($total_products / $products_per_page);
+        // Lấy danh sách sản phẩm
+        $products = $productModel->getFilteredProducts($options);
 
-        // Lấy sản phẩm cho trang hiện tại
-        $products = $productModel->getFilteredProducts(array_merge($filter_options, [
-            'limit' => $products_per_page,
-            'offset' => $offset
-        ]));
+        // Đếm tổng số sản phẩm để tính toán phân trang
+        $totalProducts = $productModel->countFilteredProducts($options);
 
+        // --- PHỤC HỒI LẠI BIẾN $pagination THEO YÊU CẦU ---
+        $pagination = [
+            'total'   => ceil($totalProducts / $limit),
+            'current' => (int)$page
+        ];
+
+        // Lấy dữ liệu cho các bộ lọc
+        $brandsForFilter = $categoryModel->getBrandsByCategorySlug($slug);
+        $allCategories = $categoryModel->getAll();
+
+        // Chuẩn bị toàn bộ dữ liệu để gửi cho View
         $data = [
-            'title' => 'Danh mục: ' . htmlspecialchars($category->name),
-            'category' => $category,
-            'products' => $products,
-            'brands' => $categoryModel->getBrandsByCategorySlug($slug),
-            'categories' => $categoryModel->getAllCategories(),
-            'pagination' => ['current' => $current_page, 'total' => $total_pages],
-            'filters' => ['brand' => $brand_filter, 'sort' => $sort_filter],
-            'current_category_slug' => $slug // Để highlight menu
+            'title'      => 'Danh mục ' . htmlspecialchars($currentCategory->name),
+            'category'   => $currentCategory,
+            'products'   => $products,
+            'brands'     => $brandsForFilter,
+            'categories' => $allCategories,
+            'pagination' => $pagination, // Gửi mảng pagination đúng tên
+            'filters'    => $filters     // Gửi mảng filters đúng tên
         ];
 
+        // Tải view và truyền dữ liệu vào
         $this->view('client/category', $data);
     }
 }

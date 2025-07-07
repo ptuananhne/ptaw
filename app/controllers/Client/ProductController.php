@@ -1,39 +1,39 @@
 <?php
 class ProductController extends Controller
 {
-
-    public function __construct()
-    {
-        // Constructor
-    }
-
+    /**
+     * Hiển thị trang chi tiết của một sản phẩm.
+     * @param string $slug Slug của sản phẩm.
+     */
     public function index($slug = '')
     {
         if (empty($slug)) {
-            header('Location: ' . BASE_URL);
-            exit();
+            // Nếu không có slug, có thể chuyển hướng về trang chủ hoặc trang 404
+            redirect(BASE_URL);
         }
 
         $productModel = $this->model('Product');
         $categoryModel = $this->model('Category');
 
-        // Lấy thông tin sản phẩm
+        // Lấy thông tin chi tiết sản phẩm bằng slug
         $product = $productModel->getProductBySlug($slug);
 
+        // Nếu không tìm thấy sản phẩm, hiển thị trang lỗi 404
         if (!$product) {
-            // Xử lý trang 404
-            echo "404 - Product not found";
-            exit();
+            http_response_code(404);
+            $this->view('client/404'); // Giả sử bạn có view 404
+            return;
         }
 
-        // Tăng lượt xem
+        // Tăng lượt xem cho sản phẩm
         $productModel->incrementViewCount($product->id);
 
-        // Lấy thư viện ảnh
+        // Lấy ảnh từ thư viện
         $gallery = $productModel->getProductGallery($product->id);
 
-        // Lấy danh sách danh mục cho sidebar
-        $allCategories = $categoryModel->getAllCategories();
+        // Lấy tất cả danh mục để hiển thị (ví dụ: ở header)
+        // SỬA LỖI Ở ĐÂY: Đổi tên hàm từ getAllCategories() thành getAll()
+        $allCategories = $categoryModel->getAll();
 
         $data = [
             'title' => htmlspecialchars($product->name),

@@ -372,3 +372,531 @@ body {
   font-size: 0.75rem;
   color: #6b7280; /* gray-500 */
 }
+
+/* === NEW STYLES FOR MANAGEMENT PAGES === */
+
+.page-container {
+  /* Optional: for overall page structure */
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.page-title {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 0.375rem;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.btn .icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-right: 0.5rem;
+}
+
+.btn-primary {
+  background-color: #2563eb;
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background-color: #1d4ed8;
+}
+
+.table-container {
+  background-color: #ffffff;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  overflow-x: auto; /* For responsiveness */
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.admin-table th,
+.admin-table td {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #e5e7eb; /* gray-200 */
+  vertical-align: middle;
+}
+
+.admin-table thead th {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #6b7280; /* gray-500 */
+  background-color: #f9fafb; /* gray-50 */
+}
+
+.admin-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-table tbody tr:hover {
+  background-color: #f9fafb; /* gray-50 */
+}
+
+.admin-table .table-image {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 0.375rem;
+}
+
+.admin-table .product-name {
+  font-weight: 600;
+  color: #111827;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-edit {
+  background-color: #f9b500;
+  color: #ffffff;
+  padding: 0.5rem 1rem;
+}
+.btn-edit:hover {
+  background-color: #d49c00;
+}
+
+.btn-delete {
+  background-color: #ef4444;
+  color: #ffffff;
+  padding: 0.5rem 1rem;
+}
+.btn-delete:hover {
+  background-color: #dc2626;
+}
+/* ... (toàn bộ CSS cũ của bạn) ... */
+
+/* === STYLES FOR FORMS === */
+.form-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.admin-form {
+  background-color: #ffffff;
+  padding: 2rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  display: block;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.form-input,
+.form-textarea,
+.form-select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  font-size: 1rem;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+.form-input-file {
+  display: block;
+  width: 100%;
+  padding: 0.5rem;
+}
+
+.current-image-preview {
+  margin-top: 1rem;
+}
+.current-image-preview p {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+}
+.current-image-preview img {
+  max-width: 150px;
+  height: auto;
+  border-radius: 0.375rem;
+  border: 1px solid #e5e7eb;
+}
+
+.form-actions {
+  margin-top: 2rem;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 1.5rem;
+  display: flex;
+  gap: 1rem;
+}
+
+.btn-secondary {
+  background-color: #6b7280;
+  color: #ffffff;
+}
+.btn-secondary:hover {
+  background-color: #4b5563;
+}
+
+/* === STYLES FOR DELETE CONFIRMATION === */
+.confirm-box {
+  background-color: #ffffff;
+  padding: 2rem;
+  border-radius: 0.5rem;
+  text-align: center;
+  max-width: 500px;
+  margin: 2rem auto;
+  border: 1px solid #ef4444;
+}
+.confirm-box p {
+  font-size: 1.125rem;
+  margin-bottom: 0.5rem;
+}
+.confirm-box h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
+  color: #111827;
+}
+
+/* === NEW STYLES FOR FILTER CONTAINER === */
+.filter-container {
+  background-color: #ffffff;
+  padding: 1rem 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  margin-bottom: 1.5rem;
+}
+
+.filter-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-end; /* Căn chỉnh các item theo đáy */
+}
+
+.filter-group {
+  flex: 1 1 200px; /* Cho phép các group co giãn */
+}
+
+.filter-group .form-input,
+.filter-group .form-select {
+  height: 42px; /* Đồng bộ chiều cao */
+  margin-bottom: 0; /* Bỏ margin đáy */
+}
+
+/* Sửa lại nhóm nút để đẹp hơn */
+.filter-buttons {
+  flex: 0 1 220px; /* Tăng nhẹ độ rộng cơ bản để có không gian */
+  display: flex;
+  gap: 0.75rem; /* Tăng khoảng cách giữa 2 nút */
+}
+
+/* Sửa lại các nút bên trong nhóm */
+.filter-buttons .btn {
+  flex: 1; /* Quan trọng: Giúp 2 nút có chiều rộng bằng nhau */
+  display: flex;
+  justify-content: center; /* Căn giữa nội dung theo chiều ngang */
+  align-items: center; /* Căn giữa nội dung theo chiều dọc */
+  height: 42px;
+  padding: 0.5rem 1rem; /* Đồng bộ padding */
+  box-sizing: border-box; /* Đồng bộ box model */
+  text-decoration: none; /* Đảm bảo thẻ <a> không có gạch chân */
+}
+/* Thêm vào cuối file public/css/admin-style.css */
+
+.gallery-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+}
+
+.gallery-item {
+  position: relative;
+  border: 1px solid #ddd;
+  border-radius: 0.25rem;
+  overflow: hidden;
+}
+
+.gallery-item img {
+  width: 100%;
+  height: 120px;
+  object-fit: cover;
+  display: block;
+}
+
+.btn-delete-gallery {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: rgba(239, 68, 68, 0.8);
+  color: white;
+  border: none;
+  border-radius: 999px;
+  width: 24px;
+  height: 24px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  line-height: 24px;
+  text-align: center;
+  padding: 0;
+}
+.btn-delete-gallery:hover {
+  background-color: #dc2626;
+}
+/* ... (toàn bộ CSS cũ) ... */
+
+/* === STYLES MỚI CHO KHU VỰC QUẢN LÝ ẢNH === */
+
+.image-management-area {
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+}
+
+.form-label-secondary {
+  display: block;
+  font-weight: 500;
+  color: #4b5563;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.image-selection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.no-images-text {
+  grid-column: 1 / -1; /* Chiếm toàn bộ chiều rộng grid */
+  text-align: center;
+  padding: 2rem;
+  color: #6b7280;
+}
+
+.image-card {
+  position: relative;
+  border-radius: 0.375rem;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color 0.2s;
+}
+
+.image-card img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  display: block;
+}
+
+.image-card .image-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.image-card:hover .image-overlay {
+  opacity: 1;
+}
+
+.image-card input[type="radio"] {
+  position: absolute;
+  opacity: 0; /* Ẩn radio button gốc */
+  width: 0;
+  height: 0;
+}
+
+.image-card .image-overlay label {
+  color: white;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  pointer-events: none; /* Cho phép click xuyên qua label */
+}
+
+/* Kiểu cho ảnh được chọn */
+.image-card input[type="radio"]:checked + .image-overlay {
+  opacity: 1;
+  background-color: rgba(37, 99, 235, 0.5); /* Màu xanh */
+}
+
+.image-card input[type="radio"]:checked + .image-overlay label {
+  content: "Đã chọn";
+  font-weight: bold;
+}
+
+.image-card input[type="radio"]:checked ~ img {
+  /* Không cần, nhưng có thể thêm hiệu ứng cho ảnh */
+}
+
+/* Kiểu cho nút xóa */
+.image-card .btn-delete-gallery {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background-color: rgba(239, 68, 68, 0.8);
+  z-index: 10;
+}
+/* === STYLES MỚI CHO KHU VỰC QUẢN LÝ ẢNH === */
+
+.image-management-area {
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+}
+
+.form-label-secondary {
+  display: block;
+  font-weight: 500;
+  color: #4b5563;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.image-selection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.no-images-text {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 2rem;
+  color: #6b7280;
+}
+
+.image-card {
+  position: relative;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  border: 2px solid #e5e7eb;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.image-card img {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  display: block;
+}
+
+.image-footer {
+  padding: 0.5rem;
+  background-color: #ffffff;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image-footer label {
+  font-size: 0.875rem;
+  color: #374151;
+  cursor: pointer;
+  margin-left: 0.25rem;
+}
+
+.image-card input[type="radio"] {
+  cursor: pointer;
+}
+
+/* Kiểu cho ảnh được chọn làm đại diện */
+.image-card.is-featured {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
+}
+
+/* Nút xóa ảnh */
+.image-card .btn-delete-gallery {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background-color: rgba(239, 68, 68, 0.8);
+  color: white;
+  border: none;
+  border-radius: 999px;
+  width: 24px;
+  height: 24px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  line-height: 24px;
+  text-align: center;
+  padding: 0;
+  z-index: 10;
+}
+.image-card .btn-delete-gallery:hover {
+  background-color: #dc2626;
+}
+/* ... (toàn bộ CSS cũ của bạn) ... */
+
+/* === STYLES MỚI CHO VIỆC CHỌN ẢNH ĐẠI DIỆN === */
+
+/* Kiểu cho ảnh được chọn làm đại diện */
+.image-card.is-featured {
+  border-color: #2563eb; /* blue-600 */
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
+}
+
+.image-card.is-featured .image-footer {
+  background-color: #dbeafe; /* blue-100 */
+}
+
+.image-card.is-featured .image-footer label {
+  font-weight: 600;
+}

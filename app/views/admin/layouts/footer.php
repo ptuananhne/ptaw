@@ -1,9 +1,13 @@
-</div> <!-- /.content-container -->
+</div>
 </main>
-</div> <!-- /.admin-main-container -->
-</div> <!-- /.admin-wrapper -->
+</div>
+</div>
+<script>
+    window.APP_BASE_URL = '<?= BASE_URL ?>';
+</script>
 
-<!-- Script for layout interactivity (e.g., dropdown menu) -->
+<script src="<?= BASE_URL ?>/js/admin.js?v=1.0"></script>
+
 <script>
     function layoutData() {
         return {

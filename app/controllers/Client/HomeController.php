@@ -14,20 +14,20 @@ class HomeController extends Controller
         $bannerModel = $this->model('Banner');
 
         // Lấy tất cả banner hoạt động cho slider
+        // SỬA LỖI Ở ĐÂY: Tên hàm đúng là getAllActiveBanners()
         $activeBanners = $bannerModel->getAllActiveBanners();
 
         // Lấy 8 sản phẩm nổi bật (xem nhiều nhất)
         $featuredProducts = $productModel->getTopViewedProducts(8);
 
         // Lấy tất cả danh mục (vẫn cần cho sidebar)
-        $allCategories = $categoryModel->getAllCategories();
+        $allCategories = $categoryModel->getAll();
 
         // Lấy tất cả sản phẩm cần thiết trong 1 lần query duy nhất.
         $productsByCategory = $productModel->getTopProductsGroupedByAllCategories(8);
 
         $data = [
             'title' => 'Trang chủ - PTA | Thế giới công nghệ',
-            // 'page_class' => 'page-home', // <-- DÒNG NÀY ĐÃ ĐƯỢC XÓA
             'categories' => $allCategories,
             'banners' => $activeBanners,
             'featuredProducts' => $featuredProducts,
