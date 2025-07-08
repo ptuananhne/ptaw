@@ -16,19 +16,15 @@
 
 <body class="bg-gray-100">
   <div class="flex">
-    <!-- Sidebar -->
-    <div class="w-64 min-h-screen bg-gray-800 text-white p-4">
-      <div class="mb-6 flex items-center">
-        <h2 class="text-2xl font-bold">Admin</h2>
-      </div>
-      <nav>
-        <a href="<?php echo BASE_URL; ?>/admin/dashboard" class="block py-2.5 px-4 rounded transition duration-200 bg-gray-700">Dashboard</a>
-        <a href="<?php echo BASE_URL; ?>/admin/product" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-700">Sản phẩm</a>
-        <!-- Thêm các link quản lý khác tại đây -->
+    <div class="w-64 min-h-screen bg-gray-800 text-white p-4 flex flex-col">
+      <h2 class="text-2xl font-bold mb-6">Admin</h2>
+      <nav class="flex-grow">
+        <a href="<?php echo BASE_URL; ?>/admin/dashboard" class="block py-2.5 px-4 rounded hover:bg-gray-700">Dashboard</a>
+        <a href="<?php echo BASE_URL; ?>/admin/product" class="block py-2.5 px-4 rounded hover:bg-gray-700">Sản phẩm</a>
+        <a href="<?php echo BASE_URL; ?>/admin/taxonomy" class="block py-2.5 px-4 rounded bg-gray-700">Phân loại</a>
+        <!-- LINK MỚI -->
+        <a href="<?php echo BASE_URL; ?>/admin/banner" class="block py-2.5 px-4 rounded hover:bg-gray-700">Banner</a>
       </nav>
-      <div class="absolute bottom-4">
-        <a href="<?php echo BASE_URL; ?>/admin/auth/logout" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-red-500">Đăng xuất</a>
-      </div>
     </div>
 
     <!-- Main Content -->
