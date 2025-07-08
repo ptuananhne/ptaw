@@ -22,6 +22,41 @@ class BannerController extends Controller
         $this->view('admin/banners/index', $data);
     }
 
+    // --- CÁC ENDPOINT AJAX MỚI ---
+
+    /**
+     * Xử lý yêu cầu cập nhật thứ tự banner.
+     */
+    public function updateOrder()
+    {
+        header('Content-Type: application/json');
+        if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['order'])) {
+            $bannerIds = $_POST['order'];
+            if ($this->bannerManagerModel->updateBannerOrder($bannerIds)) {
+                echo json_encode(['success' => true, 'message' => 'Cập nhật thứ tự thành công.']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Cập nhật thứ tự thất bại.']);
+            }
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Yêu cầu không hợp lệ.']);
+        }
+    }
+
+    /**
+     * Xử lý yêu cầu bật/tắt trạng thái banner.
+     */
+    public function toggleStatus($id)
+    {
+        header('Content-Type: application/json');
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            if ($this->bannerManagerModel->toggleBannerStatus($id)) {
+                echo json_encode(['success' => true]);
+            } else {
+                echo json_encode(['success' => false]);
+            }
+        }
+    }
+
     public function add()
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {

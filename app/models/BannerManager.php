@@ -15,8 +15,32 @@ class BannerManager
      */
     public function getBanners()
     {
-        $stmt = $this->db->query("SELECT * FROM banners ORDER BY created_at DESC");
+        $stmt = $this->db->query("SELECT * FROM banners ORDER BY sort_order ASC");
         return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+    public function updateBannerOrder($bannerIds)
+    {
+        if (empty($bannerIds) || !is_array($bannerIds)) {
+            return false;
+        }
+
+        $this->db->beginTransaction();
+        try {
+            foreach ($bannerIds as $index => $id) {
+                $stmt = $this->db->prepare("UPDATE banners SET sort_order = :sort_order WHERE id = :id");
+                $stmt->execute([':sort_order' => $index, ':id' => (int)$id]);
+            }
+            $this->db->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            return false;
+        }
+    }
+    public function toggleBannerStatus($id)
+    {
+        $stmt = $this->db->prepare("UPDATE banners SET is_active = !is_active WHERE id = :id");
+        return $stmt->execute([':id' => $id]);
     }
 
     /**

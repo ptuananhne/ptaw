@@ -6,10 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $data['title']; ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Thư viện cho Kéo-Thả -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
+        }
+
+        .sortable-ghost {
+            background-color: #f0f9ff;
+        }
+
+        .drag-handle {
+            cursor: move;
         }
     </style>
 </head>
@@ -41,37 +51,31 @@
                 <table class="min-w-full leading-normal">
                     <thead>
                         <tr>
+                            <th class="px-3 py-3 border-b-2 border-gray-200 bg-gray-100 w-12"></th>
                             <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Ảnh</th>
                             <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Tiêu đề</th>
-                            <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Đường dẫn</th>
                             <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Trạng thái</th>
                             <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Hành động</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="banner-table-body">
                         <?php foreach ($data['banners'] as $banner): ?>
-                            <tr>
+                            <tr data-id="<?php echo $banner->id; ?>">
+                                <td class="px-3 py-5 border-b border-gray-200 bg-white text-sm text-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 drag-handle" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                                    </svg>
+                                </td>
                                 <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                                     <img src="<?php echo BASE_URL . '/' . htmlspecialchars($banner->image_url); ?>" alt="<?php echo htmlspecialchars($banner->title); ?>" class="w-32 h-16 object-cover rounded">
                                 </td>
                                 <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                                     <p class="text-gray-900 whitespace-no-wrap"><?php echo htmlspecialchars($banner->title); ?></p>
                                 </td>
-                                <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                    <a href="<?php echo htmlspecialchars($banner->link_url); ?>" target="_blank" class="text-blue-500 hover:underline"><?php echo htmlspecialchars($banner->link_url); ?></a>
-                                </td>
                                 <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm text-center">
-                                    <?php if ($banner->is_active): ?>
-                                        <span class="relative inline-block px-3 py-1 font-semibold text-green-900 leading-tight">
-                                            <span aria-hidden class="absolute inset-0 bg-green-200 opacity-50 rounded-full"></span>
-                                            <span class="relative">Hoạt động</span>
-                                        </span>
-                                    <?php else: ?>
-                                        <span class="relative inline-block px-3 py-1 font-semibold text-red-900 leading-tight">
-                                            <span aria-hidden class="absolute inset-0 bg-red-200 opacity-50 rounded-full"></span>
-                                            <span class="relative">Tạm ẩn</span>
-                                        </span>
-                                    <?php endif; ?>
+                                    <button class="toggle-status-btn px-3 py-1 text-xs font-semibold rounded-full <?php echo $banner->is_active ? 'bg-green-200 text-green-900' : 'bg-red-200 text-red-900'; ?>" data-id="<?php echo $banner->id; ?>">
+                                        <?php echo $banner->is_active ? 'Hoạt động' : 'Tạm ẩn'; ?>
+                                    </button>
                                 </td>
                                 <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                                     <button class="edit-btn text-indigo-600 hover:text-indigo-900 mr-4" data-banner='<?php echo json_encode($banner); ?>'>Sửa</button>
@@ -129,6 +133,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Khai báo tất cả các biến cần thiết ở đầu
             const modal = document.getElementById('banner-modal');
             const addBtn = document.getElementById('add-banner-btn');
             const closeModalBtn = document.getElementById('close-modal-btn');
@@ -136,7 +141,73 @@
             const modalTitle = document.getElementById('modal-title');
             const imageInput = document.getElementById('image');
             const imagePreview = document.getElementById('image-preview');
+            const tableBody = document.getElementById('banner-table-body');
 
+            // --- Kéo-Thả Sắp xếp ---
+            new Sortable(tableBody, {
+                animation: 150,
+                handle: '.drag-handle',
+                onEnd: function() {
+                    const order = Array.from(tableBody.querySelectorAll('tr')).map(row => row.dataset.id);
+                    fetch('<?php echo BASE_URL; ?>/admin/banner/updateOrder', {
+                            method: 'POST',
+                            body: new URLSearchParams({
+                                order: order
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (!data.success) {
+                                alert('Lỗi khi cập nhật thứ tự.');
+                            }
+                        })
+                        .catch(error => console.error('Error:', error));
+                }
+            });
+
+            // --- Xử lý các sự kiện trong bảng ---
+            tableBody.addEventListener('click', function(e) {
+                const target = e.target;
+
+                // Bật/Tắt Trạng thái
+                if (target.classList.contains('toggle-status-btn')) {
+                    const bannerId = target.dataset.id;
+                    fetch(`<?php echo BASE_URL; ?>/admin/banner/toggleStatus/${bannerId}`, {
+                            method: 'POST'
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                const isActive = target.textContent.trim() === 'Hoạt động';
+                                target.textContent = isActive ? 'Tạm ẩn' : 'Hoạt động';
+                                target.classList.toggle('bg-green-200');
+                                target.classList.toggle('text-green-900');
+                                target.classList.toggle('bg-red-200');
+                                target.classList.toggle('text-red-900');
+                            } else {
+                                alert('Lỗi khi thay đổi trạng thái.');
+                            }
+                        });
+                }
+
+                // Mở Modal Sửa
+                if (target.classList.contains('edit-btn')) {
+                    const banner = JSON.parse(target.dataset.banner);
+                    modalTitle.textContent = 'Sửa Banner';
+                    bannerForm.action = `<?php echo BASE_URL; ?>/admin/banner/edit/${banner.id}`;
+
+                    document.getElementById('title').value = banner.title;
+                    document.getElementById('link_url').value = banner.link_url;
+                    document.getElementById('is_active').checked = banner.is_active == 1;
+
+                    imagePreview.src = `<?php echo BASE_URL; ?>/${banner.image_url}`;
+                    imagePreview.classList.remove('hidden');
+
+                    openModal();
+                }
+            });
+
+            // --- Logic cho Modal ---
             function openModal() {
                 modal.classList.remove('hidden');
             }
@@ -153,23 +224,6 @@
                 modalTitle.textContent = 'Thêm Banner mới';
                 bannerForm.action = '<?php echo BASE_URL; ?>/admin/banner/add';
                 openModal();
-            });
-
-            document.querySelectorAll('.edit-btn').forEach(button => {
-                button.addEventListener('click', function() {
-                    const banner = JSON.parse(this.dataset.banner);
-                    modalTitle.textContent = 'Sửa Banner';
-                    bannerForm.action = `<?php echo BASE_URL; ?>/admin/banner/edit/${banner.id}`;
-
-                    document.getElementById('title').value = banner.title;
-                    document.getElementById('link_url').value = banner.link_url;
-                    document.getElementById('is_active').checked = banner.is_active == 1;
-
-                    imagePreview.src = `<?php echo BASE_URL; ?>/${banner.image_url}`;
-                    imagePreview.classList.remove('hidden');
-
-                    openModal();
-                });
             });
 
             imageInput.addEventListener('change', function() {
