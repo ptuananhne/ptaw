@@ -101,10 +101,12 @@ class ProductController extends Controller
     public function edit($id)
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            // --- XỬ LÝ DỮ LIỆU GỬI LÊN ---
             $data = $this->prepareProductData($_POST, $_FILES);
             $errors = $this->validateProductData($data, true);
 
             if (empty($errors)) {
+                // 1. Xử lý tải ảnh mới vào thư viện
                 if (!empty($data['gallery_files']['name'][0])) {
                     $uploadResults = $this->handleMultipleImageUpload($data['gallery_files']);
                     if ($uploadResults['success']) {
@@ -114,6 +116,7 @@ class ProductController extends Controller
                     }
                 }
 
+                // 2. Cập nhật thông tin cơ bản
                 if (empty($errors)) {
                     $data['slug'] = create_slug($data['name']);
                     if ($this->adminProductModel->updateProduct($id, $data)) {
@@ -125,25 +128,29 @@ class ProductController extends Controller
                     }
                 }
             }
+            // Nếu có lỗi, gán lỗi vào $data để hiển thị lại
             $data['errors'] = $errors;
         }
 
+        // --- HIỂN THỊ FORM ---
         $product = $this->adminProductModel->getProductById($id);
         if (!$product) {
             header('Location: ' . BASE_URL . '/admin/product');
             exit;
         }
 
+        // SỬA LỖI: Lấy đúng danh sách thương hiệu theo danh mục của sản phẩm
+        $brandsForCategory = $this->adminProductModel->getBrandsByCategoryId($product->category_id);
+
         $data['title'] = 'Sửa Sản phẩm';
         $data['product'] = $product;
         $data['gallery'] = $this->adminProductModel->getGalleryImages($id);
         $data['categories'] = $this->adminProductModel->getAllCategories();
-        $data['brands'] = $this->adminProductModel->getAllBrands();
+        $data['brands'] = $brandsForCategory; // Gửi danh sách thương hiệu đã lọc cho view
         if (!isset($data['errors'])) $data['errors'] = [];
 
         $this->view('admin/products/edit', $data);
     }
-
     public function delete($id)
     {
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
