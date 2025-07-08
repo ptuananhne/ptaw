@@ -1,16 +1,19 @@
-<IfModule mod_rewrite.c>
-    RewriteEngine On
+# Ngăn chặn Apache tự động "đoán" file
+Options -MultiViews
 
-    # Bỏ qua các quy tắc viết lại nếu request là một file hoặc thư mục đã tồn tại
-    RewriteCond %{REQUEST_FILENAME} -f [OR]
-    RewriteCond %{REQUEST_FILENAME} -d
-    RewriteRule ^ - [L]
+# Bật công cụ viết lại URL
+RewriteEngine On
 
-    # Quy tắc cho trang ADMIN
-    # Chuyển hướng các URL bắt đầu bằng "admin" (ví dụ: /admin, /admin/dashboard) đến admin.php
-    RewriteRule ^admin/?(.*)$ admin.php?url=$1 [QSA,L]
+# --- QUY TẮC CHÍNH ---
 
-    # Quy tắc cho trang CLIENT
-    # Chuyển hướng tất cả các URL còn lại đến index.php
-    RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
-</IfModule>
+# 1. Bỏ qua các quy tắc bên dưới nếu URL trỏ đến một thư mục có thật
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# 2. Bỏ qua các quy tắc bên dưới nếu URL trỏ đến một file có thật (như css, js, images)
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+# 3. Nếu không khớp các điều kiện trên, chuyển hướng tất cả request đến index.php
+#    và truyền URL gốc vào tham số `url`
+RewriteRule ^(.+)$ index.php?url=$1 [QSA,L]
