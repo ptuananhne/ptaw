@@ -12,17 +12,41 @@ class Taxonomy
     // --- CATEGORY METHODS ---
 
     /**
-     * Lấy tất cả danh mục cùng với số lượng sản phẩm.
-     * @return array
+     * Lấy danh mục, sắp xếp theo thứ tự đã lưu.
      */
     public function getCategories()
     {
         $stmt = $this->db->query("SELECT c.*, COUNT(p.id) as product_count 
                                  FROM categories c
                                  LEFT JOIN products p ON c.id = p.category_id
-                                 GROUP BY c.id, c.name, c.slug, c.created_at, c.updated_at
-                                 ORDER BY c.name ASC");
+                                 GROUP BY c.id
+                                 ORDER BY c.sort_order ASC"); // Sắp xếp theo sort_order
         return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    /**
+     * Cập nhật thứ tự của các danh mục.
+     * @param array $categoryIds Mảng chứa các ID theo thứ tự mới.
+     * @return bool
+     */
+    public function updateCategoryOrder($categoryIds)
+    {
+        if (empty($categoryIds) || !is_array($categoryIds)) {
+            return false;
+        }
+
+        $this->db->beginTransaction();
+        try {
+            foreach ($categoryIds as $index => $id) {
+                $stmt = $this->db->prepare("UPDATE categories SET sort_order = :sort_order WHERE id = :id");
+                $stmt->execute([':sort_order' => $index, ':id' => (int)$id]);
+            }
+            $this->db->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            return false;
+        }
     }
 
     /**

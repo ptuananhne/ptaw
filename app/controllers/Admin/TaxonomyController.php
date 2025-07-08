@@ -12,7 +12,6 @@ class TaxonomyController extends Controller
         }
         $this->taxonomyModel = $this->model('Taxonomy');
     }
-
     public function index()
     {
         $data = [
@@ -101,7 +100,20 @@ class TaxonomyController extends Controller
             }
         }
     }
-
+    public function updateCategoryOrder()
+    {
+        header('Content-Type: application/json');
+        if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['order'])) {
+            $categoryIds = $_POST['order'];
+            if ($this->taxonomyModel->updateCategoryOrder($categoryIds)) {
+                echo json_encode(['success' => true, 'message' => 'Cập nhật thứ tự danh mục thành công.']);
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Cập nhật thứ tự thất bại.']);
+            }
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Yêu cầu không hợp lệ.']);
+        }
+    }
     // --- HELPER ---
     private function handleLogoUpload($file)
     {
