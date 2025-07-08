@@ -1,17 +1,19 @@
 <?php $this->view('client/layouts/header', $data); ?>
 
+<!-- Banner Section -->
 <section class="banner-section">
     <div class="banner-slider-container">
         <div class="banner-track">
-            <?php if (!empty($banners)): ?>
-                <?php foreach ($banners as $banner): ?>
+            <?php if (!empty($data['banners'])): ?>
+                <?php foreach ($data['banners'] as $banner): ?>
                     <div class="banner-slide">
-                        <a href="<?= htmlspecialchars($banner->link_url ?? '#') ?>">
-                            <img src="<?= BASE_URL . '/' . htmlspecialchars($banner->image_url) ?>" alt="<?= htmlspecialchars($banner->title ?? 'Banner') ?>">
+                        <a href="<?php echo htmlspecialchars($banner->link_url ?? '#'); ?>">
+                            <img src="<?php echo BASE_URL . '/' . htmlspecialchars($banner->image_url); ?>" alt="<?php echo htmlspecialchars($banner->title ?? 'Banner'); ?>">
                         </a>
                     </div>
                 <?php endforeach; ?>
             <?php else: ?>
+                <!-- Fallback content when no banners are active -->
                 <div class="banner-slide">
                     <div class="hero-section-fallback">
                         <h1>Khám Phá Thế Giới Công Nghệ</h1>
@@ -20,9 +22,11 @@
                 </div>
             <?php endif; ?>
         </div>
-        <?php if (!empty($banners) && count($banners) > 1): ?>
-            <button class="banner-btn prev" aria-label="Previous Banner">&lt;</button>
-            <button class="banner-btn next" aria-label="Next Banner">&gt;</button>
+
+        <!-- Navigation Buttons -->
+        <?php if (!empty($data['banners']) && count($data['banners']) > 1): ?>
+            <button class="banner-btn prev" aria-label="Previous Banner">&#10094;</button>
+            <button class="banner-btn next" aria-label="Next Banner">&#10095;</button>
         <?php endif; ?>
     </div>
 </section>

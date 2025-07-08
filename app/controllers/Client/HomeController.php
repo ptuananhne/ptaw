@@ -1,39 +1,36 @@
 <?php
+
+// Đảm bảo không có mã nào nằm ngoài lớp
 class HomeController extends Controller
 {
-
     public function __construct()
     {
-        // Models will be loaded when needed
+        // Models sẽ được tải khi cần
     }
 
     public function index()
     {
+        // Tải các model cần thiết
         $categoryModel = $this->model('Category');
         $productModel = $this->model('Product');
         $bannerModel = $this->model('Banner');
 
-        // Lấy tất cả banner hoạt động cho slider
+        // Lấy dữ liệu từ các model
         $activeBanners = $bannerModel->getAllActiveBanners();
-
-        // Lấy 8 sản phẩm nổi bật (xem nhiều nhất)
         $featuredProducts = $productModel->getTopViewedProducts(8);
-
-        // Lấy tất cả danh mục (vẫn cần cho sidebar)
         $allCategories = $categoryModel->getAllCategories();
-
-        // Lấy tất cả sản phẩm cần thiết trong 1 lần query duy nhất.
         $productsByCategory = $productModel->getTopProductsGroupedByAllCategories(8);
 
+        // Chuẩn bị dữ liệu để gửi cho view
         $data = [
             'title' => 'Trang chủ - PTA | Thế giới công nghệ',
-            // 'page_class' => 'page-home', // <-- DÒNG NÀY ĐÃ ĐƯỢC XÓA
             'categories' => $allCategories,
             'banners' => $activeBanners,
             'featuredProducts' => $featuredProducts,
             'productsByCategory' => $productsByCategory
         ];
 
+        // Gọi view và truyền dữ liệu
         $this->view('client/home', $data);
     }
 }

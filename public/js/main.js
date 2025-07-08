@@ -124,8 +124,10 @@ document.addEventListener("DOMContentLoaded", function () {
   const bannerSlider = document.querySelector(".banner-slider-container");
   if (bannerSlider) {
     const track = bannerSlider.querySelector(".banner-track");
+    if (!track) return;
+
     const slides = Array.from(track.children);
-    if (slides.length <= 1) return; // Don't initialize if only one or zero slides
+    if (slides.length <= 1) return; // Không khởi tạo nếu chỉ có 1 hoặc 0 slide
 
     const nextButton = bannerSlider.querySelector(".banner-btn.next");
     const prevButton = bannerSlider.querySelector(".banner-btn.prev");
@@ -133,25 +135,24 @@ document.addEventListener("DOMContentLoaded", function () {
     let intervalId;
 
     const moveToSlide = (targetIndex) => {
-      if (targetIndex < 0 || targetIndex >= slides.length) return;
+      // Xử lý vòng lặp vô tận
+      if (targetIndex >= slides.length) {
+        targetIndex = 0;
+      }
+      if (targetIndex < 0) {
+        targetIndex = slides.length - 1;
+      }
+
       const slideWidth = slides[0].getBoundingClientRect().width;
       track.style.transform = `translateX(-${slideWidth * targetIndex}px)`;
       currentIndex = targetIndex;
-      updateBannerButtons();
-    };
-
-    const updateBannerButtons = () => {
-      if (!prevButton || !nextButton) return;
-      prevButton.disabled = currentIndex === 0;
-      nextButton.disabled = currentIndex === slides.length - 1;
     };
 
     const startAutoPlay = () => {
-      stopAutoPlay();
+      stopAutoPlay(); // Dừng interval cũ trước khi bắt đầu cái mới
       intervalId = setInterval(() => {
-        let nextIndex = (currentIndex + 1) % slides.length;
-        moveToSlide(nextIndex);
-      }, 5000); // Change slide every 5 seconds
+        moveToSlide(currentIndex + 1);
+      }, 2000); // Đổi slide mỗi 5 giây
     };
 
     const stopAutoPlay = () => clearInterval(intervalId);
@@ -159,22 +160,21 @@ document.addEventListener("DOMContentLoaded", function () {
     if (prevButton && nextButton) {
       prevButton.addEventListener("click", () => {
         moveToSlide(currentIndex - 1);
-        stopAutoPlay();
       });
       nextButton.addEventListener("click", () => {
         moveToSlide(currentIndex + 1);
-        stopAutoPlay();
       });
     }
 
+    // Dừng khi tương tác, chạy lại khi rời đi
     bannerSlider.addEventListener("mouseenter", stopAutoPlay);
     bannerSlider.addEventListener("mouseleave", startAutoPlay);
+
+    // Xử lý khi thay đổi kích thước cửa sổ
     new ResizeObserver(() => moveToSlide(currentIndex)).observe(bannerSlider);
 
-    updateBannerButtons();
-    startAutoPlay();
+    startAutoPlay(); // Bắt đầu chạy tự động
   }
-
   /**
    * --- LOGIC TRANG CHI TIẾT SẢN PHẨM ---
    * - Gallery ảnh sản phẩm.

@@ -10,28 +10,32 @@ class Banner
 
     /**
      * Lấy TẤT CẢ các banner đang hoạt động để hiển thị trên slider.
+     * Sắp xếp theo thứ tự đã được thiết lập trong trang admin.
      * @return array
      */
     public function getAllActiveBanners()
     {
         try {
-            // Sửa câu lệnh SQL để lấy tất cả banner đang hoạt động
-            $stmt = $this->db->query("SELECT image_url, link_url, title FROM banners WHERE is_active = 1 ORDER BY created_at DESC");
+            // SỬA LỖI: Thay đổi ORDER BY created_at DESC thành sort_order ASC
+            $stmt = $this->db->query("SELECT image_url, link_url, title 
+                                     FROM banners 
+                                     WHERE is_active = 1 
+                                     ORDER BY sort_order ASC");
             return $stmt->fetchAll();
         } catch (PDOException $e) {
-            // Log a real error here in a production environment
+            // Ghi lại lỗi trong môi trường production
             return [];
         }
     }
 
     /**
-     * Lấy một banner đang hoạt động (đã có sẵn, giữ lại để có thể dùng sau).
+     * Lấy một banner đang hoạt động (giữ lại để có thể dùng sau).
      * @return object|false
      */
     public function getActiveBanner()
     {
         try {
-            $stmt = $this->db->query("SELECT image_url, link_url, title FROM banners WHERE is_active = 1 LIMIT 1");
+            $stmt = $this->db->query("SELECT image_url, link_url, title FROM banners WHERE is_active = 1 ORDER BY sort_order ASC LIMIT 1");
             return $stmt->fetch();
         } catch (PDOException $e) {
             return false;

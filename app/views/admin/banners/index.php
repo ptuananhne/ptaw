@@ -16,6 +16,7 @@
 
         .sortable-ghost {
             background-color: #f0f9ff;
+            opacity: 0.7;
         }
 
         .drag-handle {
@@ -118,7 +119,7 @@
                             </label>
                         </div>
                         <div class="items-center px-4 py-3">
-                            <button id="submit-btn" class="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                            <button id="submit-btn" type="submit" class="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300">
                                 Lưu
                             </button>
                             <button id="close-modal-btn" type="button" class="mt-2 px-4 py-2 bg-gray-200 text-gray-800 text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300">
@@ -147,13 +148,18 @@
             new Sortable(tableBody, {
                 animation: 150,
                 handle: '.drag-handle',
+                ghostClass: 'sortable-ghost',
                 onEnd: function() {
-                    const order = Array.from(tableBody.querySelectorAll('tr')).map(row => row.dataset.id);
+                    const orderIds = Array.from(tableBody.querySelectorAll('tr')).map(row => row.dataset.id);
+
+                    const formData = new FormData();
+                    orderIds.forEach(id => {
+                        formData.append('order[]', id);
+                    });
+
                     fetch('<?php echo BASE_URL; ?>/admin/banner/updateOrder', {
                             method: 'POST',
-                            body: new URLSearchParams({
-                                order: order
-                            })
+                            body: formData
                         })
                         .then(response => response.json())
                         .then(data => {
