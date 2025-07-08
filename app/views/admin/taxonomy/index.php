@@ -1,14 +1,12 @@
 <?php
 // PHP logic để xác định trang hiện tại
 $current_uri = $_SERVER['REQUEST_URI'];
-function is_active($path, $current_uri)
-{
+function is_active($path, $current_uri) {
     return strpos($current_uri, $path) !== false;
 }
 ?>
 <!DOCTYPE html>
 <html lang="vi">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,27 +15,14 @@ function is_active($path, $current_uri)
     <!-- Thư viện cho Kéo-Thả -->
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-
-        .category-item.active {
-            background-color: #4A5568;
-            color: white;
-        }
-
-        .sortable-ghost {
-            background-color: #f0f9ff;
-            opacity: 0.7;
-        }
-
-        .drag-handle {
-            cursor: move;
-        }
+    <style> 
+        body { font-family: 'Inter', sans-serif; } 
+        /* SỬA LỖI: Thêm lại style cho mục được chọn */
+        .category-item.active { background-color: #4A5568; color: white; } 
+        .sortable-ghost { background-color: #f0f9ff; opacity: 0.7; }
+        .drag-handle { cursor: move; }
     </style>
 </head>
-
 <body class="bg-gray-100">
     <div class="flex">
         <!-- Sidebar -->
@@ -68,18 +53,16 @@ function is_active($path, $current_uri)
                     </form>
                     <input type="text" id="category-filter" placeholder="Tìm danh mục..." class="w-full shadow-sm border rounded px-3 py-2 mb-2">
                     <div id="category-list" class="space-y-2 flex-grow overflow-y-auto" style="max-height: 50vh;">
-                        <?php foreach ($data['categories'] as $category): ?>
-                            <div data-id="<?php echo $category->id; ?>" class="category-item flex justify-between items-center p-2 rounded hover:bg-gray-200 cursor-pointer">
-                                <div class="flex items-center gap-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 drag-handle" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                                    </svg>
-                                    <span class="category-name"><?php echo htmlspecialchars($category->name); ?> (<?php echo $category->product_count; ?>)</span>
-                                </div>
-                                <form action="<?php echo BASE_URL; ?>/admin/taxonomy/deleteCategory/<?php echo $category->id; ?>" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa danh mục này?');">
-                                    <button type="submit" class="text-red-500 hover:text-red-700 text-xs">Xóa</button>
-                                </form>
+                        <?php foreach($data['categories'] as $category): ?>
+                        <div data-id="<?php echo $category->id; ?>" class="category-item flex justify-between items-center p-2 rounded hover:bg-gray-200 cursor-pointer">
+                            <div class="flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 drag-handle" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                                <span class="category-name"><?php echo htmlspecialchars($category->name); ?> (<?php echo $category->product_count; ?>)</span>
                             </div>
+                            <form action="<?php echo BASE_URL; ?>/admin/taxonomy/deleteCategory/<?php echo $category->id; ?>" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa danh mục này?');">
+                                <button type="submit" class="text-red-500 hover:text-red-700 text-xs">Xóa</button>
+                            </form>
+                        </div>
                         <?php endforeach; ?>
                     </div>
                 </div>
@@ -106,16 +89,16 @@ function is_active($path, $current_uri)
                     </form>
                     <input type="text" id="brand-filter" placeholder="Tìm thương hiệu..." class="w-full shadow-sm border rounded px-3 py-2 mb-2">
                     <div id="brand-list" class="space-y-2 flex-grow overflow-y-auto" style="max-height: 40vh;">
-                        <?php foreach ($data['brands'] as $brand): ?>
-                            <div class="brand-item flex justify-between items-center p-2 rounded">
-                                <div class="flex items-center gap-2">
-                                    <img src="<?php echo BASE_URL . '/' . htmlspecialchars($brand->logo_url); ?>" class="w-8 h-8 object-contain" alt="">
-                                    <span class="brand-name"><?php echo htmlspecialchars($brand->name); ?> (<?php echo $brand->product_count; ?>)</span>
-                                </div>
-                                <form action="<?php echo BASE_URL; ?>/admin/taxonomy/deleteBrand/<?php echo $brand->id; ?>" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa thương hiệu này?');">
-                                    <button type="submit" class="text-red-500 hover:text-red-700 text-xs">Xóa</button>
-                                </form>
+                        <?php foreach($data['brands'] as $brand): ?>
+                        <div class="brand-item flex justify-between items-center p-2 rounded">
+                            <div class="flex items-center gap-2">
+                                <img src="<?php echo BASE_URL . '/' . htmlspecialchars($brand->logo_url); ?>" class="w-8 h-8 object-contain" alt="">
+                                <span class="brand-name"><?php echo htmlspecialchars($brand->name); ?> (<?php echo $brand->product_count; ?>)</span>
                             </div>
+                            <form action="<?php echo BASE_URL; ?>/admin/taxonomy/deleteBrand/<?php echo $brand->id; ?>" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa thương hiệu này?');">
+                                <button type="submit" class="text-red-500 hover:text-red-700 text-xs">Xóa</button>
+                            </form>
+                        </div>
                         <?php endforeach; ?>
                     </div>
                 </div>
@@ -123,7 +106,7 @@ function is_active($path, $current_uri)
         </div>
     </div>
 
-    <script>
+<script>
         document.addEventListener('DOMContentLoaded', function() {
             const categoryList = document.getElementById('category-list');
             const linkingPanel = document.getElementById('linking-panel');
@@ -182,16 +165,17 @@ function is_active($path, $current_uri)
                 const linkedBrandIds = await response.json();
 
                 brandCheckboxList.innerHTML = '';
-                allBrands.forEach(brand => {
-                    const isChecked = linkedBrandIds.includes(String(brand.id));
-                    brandCheckboxList.innerHTML += `
+        allBrands.forEach(brand => {
+            // SỬA LỖI: Chuyển đổi ID sang chuỗi trước khi so sánh
+            const isChecked = linkedBrandIds.map(String).includes(String(brand.id));
+            brandCheckboxList.innerHTML += `
                 <label class="brand-link-item flex items-center p-2 rounded hover:bg-gray-100">
                     <input type="checkbox" name="brand_ids[]" value="${brand.id}" class="h-4 w-4" ${isChecked ? 'checked' : ''}>
                     <img src="<?php echo BASE_URL; ?>/${brand.logo_url}" class="w-6 h-6 object-contain mx-2" alt="">
                     <span class="brand-link-name ml-2">${brand.name}</span>
                 </label>
             `;
-                });
+        });
                 linkingPanel.classList.remove('hidden');
                 linkingPanel.classList.add('flex');
             });
