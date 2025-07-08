@@ -1,30 +1,43 @@
 <?php
-// QUAN TRỌNG: Kế thừa từ AdminController để được bảo vệ
-require_once '../app/core/AdminController.php';
 
-class DashboardController extends AdminController
+class DashboardController extends Controller
 {
+    private $statisticModel;
+
     public function __construct()
     {
-        // Gọi constructor của lớp cha (AdminController) để kiểm tra đăng nhập
-        parent::__construct();
+        // Bảo vệ: Yêu cầu đăng nhập để truy cập
+        if (!isset($_SESSION['admin_id'])) {
+            // SỬA LỖI: Chuyển hướng đến đúng controller xử lý login là AuthController
+            header('Location: ' . BASE_URL . '/admin/auth/login');
+            exit;
+        }
+
+        // Tải model thống kê
+        $this->statisticModel = $this->model('Statistic');
     }
 
+    /**
+     * Hiển thị trang dashboard với các số liệu thống kê
+     */
     public function index()
     {
-        // Tải các model cần thiết để lấy số liệu thống kê
-        $productModel = $this->model('Product');
-        $categoryModel = $this->model('Category');
-        $brandModel = $this->model('Brand');
+        // Lấy dữ liệu thống kê từ model
+        $productCount = $this->statisticModel->getProductCount();
+        $categoryCount = $this->statisticModel->getCategoryCount();
+        $brandCount = $this->statisticModel->getBrandCount();
+        $bannerCount = $this->statisticModel->getBannerCount();
 
         $data = [
-            'title' => 'Bảng điều khiển',
-            'total_products' => $productModel->countAll(),
-            'total_categories' => $categoryModel->countAll(),
-            'total_brands' => $brandModel->countAll(),
-            // Thêm các dữ liệu khác bạn muốn hiển thị ở đây
+            'title' => 'Trang quản trị',
+            'username' => $_SESSION['admin_username'] ?? 'Admin',
+            'productCount' => $productCount,
+            'categoryCount' => $categoryCount,
+            'brandCount' => $brandCount,
+            'bannerCount' => $bannerCount,
         ];
 
+        // Tải view cho trang dashboard và truyền dữ liệu
         $this->view('admin/dashboard', $data);
     }
 }

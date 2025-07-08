@@ -1,19 +1,9 @@
-# Ngăn chặn Apache tự động "đoán" file
-Options -MultiViews
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
 
-# Bật công cụ viết lại URL
-RewriteEngine On
-
-# --- QUY TẮC CHÍNH ---
-
-# 1. Bỏ qua các quy tắc bên dưới nếu URL trỏ đến một thư mục có thật
-RewriteCond %{REQUEST_FILENAME} -d
-RewriteRule ^ - [L]
-
-# 2. Bỏ qua các quy tắc bên dưới nếu URL trỏ đến một file có thật (như css, js, images)
-RewriteCond %{REQUEST_FILENAME} -f
-RewriteRule ^ - [L]
-
-# 3. Nếu không khớp các điều kiện trên, chuyển hướng tất cả request đến index.php
-#    và truyền URL gốc vào tham số `url`
-RewriteRule ^(.+)$ index.php?url=$1 [QSA,L]
+  # Chuyển hướng tất cả các yêu cầu đến index.php nếu không phải là một file hoặc thư mục tồn tại
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
+</IfModule>

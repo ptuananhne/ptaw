@@ -1,69 +1,76 @@
 <?php
+
 class AuthController extends Controller
 {
+    private $adminModel;
+
+    public function __construct()
+    {
+        $this->adminModel = $this->model('Admin');
+    }
+
     /**
-     * Hiển thị form đăng nhập hoặc xử lý dữ liệu POST từ form.
+     * Hiển thị và xử lý form đăng nhập
      */
     public function login()
     {
-        $data = ['title' => 'Admin Login'];
-
-        // Nếu đã đăng nhập rồi thì chuyển hướng vào dashboard
-        if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true) {
+        // Nếu đã đăng nhập, chuyển hướng đến dashboard
+        if (isset($_SESSION['admin_id'])) {
             header('Location: ' . BASE_URL . '/admin/dashboard');
-            exit();
+            exit;
         }
 
-        // Xử lý khi người dùng gửi form (phương thức POST)
+        $data = ['username' => '', 'password' => '', 'error' => ''];
+
+        // Kiểm tra nếu là phương thức POST
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-            // Làm sạch dữ liệu đầu vào
-            $username = trim($_POST['username']);
-            $password = $_POST['password'];
 
-            // Tải model Admin
-            $adminModel = $this->model('Admin');
+            // SỬA LỖI: Loại bỏ hàm filter_input_array với hằng số đã lỗi thời.
+            // Thay vào đó, chúng ta sẽ xử lý trực tiếp dữ liệu đã được làm sạch.
+            $data = [
+                'username' => trim($_POST['username']),
+                'password' => trim($_POST['password']),
+                'error' => ''
+            ];
 
-            // Tìm admin trong CSDL
-            $admin = $adminModel->findByUsername($username);
+            // Validate dữ liệu
+            if (empty($data['username']) || empty($data['password'])) {
+                $data['error'] = 'Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.';
+            }
 
-            if ($admin && password_verify($password, $admin->password_hash)) {
-                // Mật khẩu chính xác, tạo session
-                $_SESSION['admin_id'] = $admin->id;
-                $_SESSION['admin_username'] = $admin->username;
-                $_SESSION['admin_logged_in'] = true;
+            // Nếu không có lỗi validation
+            if (empty($data['error'])) {
+                // Tìm admin bằng username
+                $admin = $this->adminModel->findByUsername($data['username']);
 
-                // Chuyển hướng đến trang dashboard
-                header('Location: ' . BASE_URL . '/admin/dashboard');
-                exit();
-            } else {
-                // Sai username hoặc password
-                $data['error'] = 'Tên đăng nhập hoặc mật khẩu không đúng.';
+                // Kiểm tra admin và so sánh mật khẩu
+                if ($admin && password_verify($data['password'], $admin->password_hash)) {
+                    // Đăng nhập thành công, tạo session
+                    $_SESSION['admin_id'] = $admin->id;
+                    $_SESSION['admin_username'] = $admin->username;
+                    // Chuyển hướng đến trang dashboard
+                    header('Location: ' . BASE_URL . '/admin/dashboard');
+                    exit;
+                } else {
+                    // Đăng nhập thất bại
+                    $data['error'] = 'Tên đăng nhập hoặc mật khẩu không đúng.';
+                }
             }
         }
 
-        // Hiển thị view đăng nhập
+        // Hiển thị lại form đăng nhập với lỗi (nếu có)
         $this->view('admin/login', $data);
     }
 
     /**
-     * Xử lý đăng xuất.
+     * Đăng xuất
      */
     public function logout()
     {
-        // Hủy tất cả các biến session
-        $_SESSION = [];
+        unset($_SESSION['admin_id']);
+        unset($_SESSION['admin_username']);
         session_destroy();
-
-        // Chuyển hướng về trang đăng nhập
         header('Location: ' . BASE_URL . '/admin/auth/login');
-        exit();
-    }
-
-    /**
-     * Hàm index mặc định, sẽ gọi đến hàm login.
-     */
-    public function index()
-    {
-        $this->login();
+        exit;
     }
 }
