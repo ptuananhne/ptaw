@@ -9,7 +9,7 @@ class DashboardController extends Controller
         // Bảo vệ: Yêu cầu đăng nhập để truy cập
         if (!isset($_SESSION['admin_id'])) {
             // SỬA LỖI: Chuyển hướng đến đúng controller xử lý login là AuthController
-            header('Location: ' . BASE_URL . '/admin/auth/login');
+           header('Location: ' . BASE_URL . '/' . ADMIN_ROUTE_PREFIX . '/auth/login');
             exit;
         }
 

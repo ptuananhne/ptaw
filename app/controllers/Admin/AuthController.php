@@ -16,7 +16,7 @@ class AuthController extends Controller
     {
         // Nếu đã đăng nhập, chuyển hướng đến dashboard
         if (isset($_SESSION['admin_id'])) {
-            header('Location: ' . BASE_URL . '/admin/dashboard');
+            header('Location: ' . BASE_URL . '/' . ADMIN_ROUTE_PREFIX .'/dashboard');
             exit;
         }
 
@@ -49,7 +49,7 @@ class AuthController extends Controller
                     $_SESSION['admin_id'] = $admin->id;
                     $_SESSION['admin_username'] = $admin->username;
                     // Chuyển hướng đến trang dashboard
-                    header('Location: ' . BASE_URL . '/admin/dashboard');
+                    header('Location: ' . BASE_URL . '/' . ADMIN_ROUTE_PREFIX .'/dashboard');
                     exit;
                 } else {
                     // Đăng nhập thất bại
@@ -70,7 +70,7 @@ class AuthController extends Controller
         unset($_SESSION['admin_id']);
         unset($_SESSION['admin_username']);
         session_destroy();
-        header('Location: ' . BASE_URL . '/admin/login');
+        header('Location: ' . BASE_URL . '/' . ADMIN_ROUTE_PREFIX .'/login');
         exit;
     }
 }

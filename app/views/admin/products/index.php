@@ -18,16 +18,16 @@
     <div class="flex">
           <!-- Sidebar -->
         <div class="w-64 min-h-screen bg-gray-800 text-white p-4 flex text-center item-center flex-col">
-            <h2 class="text-2xl font-bold mb-6">Admin Panel</h2><a href="<?php echo BASE_URL; ?>/admin/auth/logout" 
+            <h2 class="text-2xl font-bold mb-6">Admin Panel</h2><a href="<?php echo BASE_URL; ?>/<?php echo ADMIN_ROUTE_PREFIX; ?>/auth/logout" 
                 class="block text-center py-2.5 px-4 rounded bg-red-500 hover:bg-red-600">
                 Đăng xuất
                 </a>
             <nav class="flex-grow">
-                <a href="<?php echo BASE_URL; ?>/admin/dashboard" class="block py-2.5 px-4 rounded hover:bg-gray-700">Dashboard</a>
-                <a href="<?php echo BASE_URL; ?>/admin/product" class="block py-2.5 px-4 rounded bg-gray-700">Sản phẩm</a>
-                <a href="<?php echo BASE_URL; ?>/admin/taxonomy" class="block py-2.5 px-4 rounded hover:bg-gray-700">Phân loại</a>
-                <a href="<?php echo BASE_URL; ?>/admin/banner" class="block py-2.5 px-4 rounded hover:bg-gray-700">Banner</a>
-                <a href="<?php echo BASE_URL; ?>/admin/productattribute" class="block py-2.5 px-4 rounded hover:bg-gray-700">Thuộc tính</a>
+                <a href="<?php echo BASE_URL; ?>/<?php echo ADMIN_ROUTE_PREFIX; ?>/dashboard" class="block py-2.5 px-4 rounded hover:bg-gray-700">Dashboard</a>
+                <a href="<?php echo BASE_URL; ?>/<?php echo ADMIN_ROUTE_PREFIX; ?>/product" class="block py-2.5 px-4 rounded bg-gray-700">Sản phẩm</a>
+                <a href="<?php echo BASE_URL; ?>/<?php echo ADMIN_ROUTE_PREFIX; ?>/taxonomy" class="block py-2.5 px-4 rounded hover:bg-gray-700">Phân loại</a>
+                <a href="<?php echo BASE_URL; ?>/<?php echo ADMIN_ROUTE_PREFIX; ?>/banner" class="block py-2.5 px-4 rounded hover:bg-gray-700">Banner</a>
+                <a href="<?php echo BASE_URL; ?>/<?php echo ADMIN_ROUTE_PREFIX; ?>/productattribute" class="block py-2.5 px-4 rounded hover:bg-gray-700">Thuộc tính</a>
             </nav>
         </div>
 
@@ -37,7 +37,7 @@
             <!-- Header -->
             <div class="flex justify-between items-center mb-6">
                 <h1 class="text-3xl font-bold"><?php echo $data['title']; ?></h1>
-                <a href="<?php echo BASE_URL; ?>/admin/product/add" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-center leading-tight">+ Thêm Mới</a>
+                <a href="<?php echo BASE_URL; ?>/<?php echo ADMIN_ROUTE_PREFIX; ?>/product/add" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-center leading-tight">+ Thêm Mới</a>
             </div>
 
             <!-- Flash Message -->
@@ -150,8 +150,8 @@
                         <p class="text-gray-900 whitespace-no-wrap">${product.view_count}</p>
                     </td>
                     <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                        <a href="<?php echo BASE_URL; ?>/admin/product/edit/${product.id}" class="text-indigo-600 hover:text-indigo-900 mr-4">Sửa</a>
-                        <form action="<?php echo BASE_URL; ?>/admin/product/delete/${product.id}" method="POST" class="inline-block" onsubmit="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');">
+                        <a href="<?php echo BASE_URL; ?>/<?php echo ADMIN_ROUTE_PREFIX; ?>/product/edit/${product.id}" class="text-indigo-600 hover:text-indigo-900 mr-4">Sửa</a>
+                        <form action="<?php echo BASE_URL; ?>/<?php echo ADMIN_ROUTE_PREFIX; ?>/product/delete/${product.id}" method="POST" class="inline-block" onsubmit="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');">
                             <button type="submit" class="text-red-600 hover:text-red-900">Xóa</button>
                         </form>
                     </td>
@@ -180,7 +180,7 @@
                 const name = filterName.value;
                 const category = filterCategory.value;
                 const brand = filterBrand.value;
-                const url = `<?php echo BASE_URL; ?>/admin/product/ajax?page=${page}&name=${encodeURIComponent(name)}&category=${encodeURIComponent(category)}&brand=${encodeURIComponent(brand)}`;
+                const url = `<?php echo BASE_URL; ?>/<?php echo ADMIN_ROUTE_PREFIX; ?>/product/ajax?page=${page}&name=${encodeURIComponent(name)}&category=${encodeURIComponent(category)}&brand=${encodeURIComponent(brand)}`;
 
                 try {
                     const response = await fetch(url);
@@ -194,7 +194,7 @@
             
             // ... (các hàm và event listener khác giữ nguyên) ...
             async function updateBrandFilter(categoryId) {
-                const url = `<?php echo BASE_URL; ?>/admin/product/getBrandsForCategory/${categoryId}`;
+                const url = `<?php echo BASE_URL; ?>/<?php echo ADMIN_ROUTE_PREFIX; ?>/product/getBrandsForCategory/${categoryId}`;
                 try {
                     const response = await fetch(url);
                     const brands = await response.json();

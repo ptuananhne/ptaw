@@ -9,7 +9,7 @@ class ProductController extends Controller
     public function __construct()
     {
         if (!isset($_SESSION['admin_id'])) {
-            header('Location: ' . BASE_URL . '/admin/auth/login');
+            header('Location: ' . BASE_URL . '/' . ADMIN_ROUTE_PREFIX . '/auth/login');
             exit;
         }
         $this->adminProductModel = $this->model('AdminProduct');
@@ -92,7 +92,7 @@ class ProductController extends Controller
                             $this->adminProductModel->addImagesToGallery($productId, $imagePaths);
                         }
                         flash('product_message', 'Thêm sản phẩm thành công!');
-                        header('Location: ' . BASE_URL . '/admin/product');
+                        header('Location: ' . BASE_URL . '/' . ADMIN_ROUTE_PREFIX . '/product');
                         exit;
                     } else {
                         $data['errors']['form'] = 'Đã có lỗi xảy ra khi lưu sản phẩm. Có thể tên sản phẩm đã tồn tại.';
@@ -110,7 +110,7 @@ class ProductController extends Controller
     {
         $product = $this->adminProductModel->getProductById($id);
         if (!$product) {
-            header('Location: ' . BASE_URL . '/admin/product');
+            header('Location: ' . BASE_URL . '/' . ADMIN_ROUTE_PREFIX . '/product');
             exit;
         }
 
@@ -148,7 +148,7 @@ class ProductController extends Controller
 
                     if ($this->adminProductModel->updateProduct($id, $postData)) {
                         flash('product_message', 'Cập nhật sản phẩm thành công!');
-                        header('Location: ' . BASE_URL . '/admin/product/edit/' . $id);
+                        header('Location: ' . BASE_URL . '/' . ADMIN_ROUTE_PREFIX . '/product/edit/' . $id);
                         exit;
                     } else {
                         flash('product_message', 'Có lỗi xảy ra khi cập nhật.', 'bg-red-100 text-red-700');
@@ -186,7 +186,7 @@ class ProductController extends Controller
                 flash('product_message', 'Xóa sản phẩm thất bại.', 'bg-red-100 text-red-700');
             }
         }
-        header('Location: ' . BASE_URL . '/admin/product');
+       header('Location: ' . BASE_URL . '/' . ADMIN_ROUTE_PREFIX . '/product');
         exit;
     }
 

@@ -29,16 +29,16 @@
     <div class="flex">
          <!-- Sidebar -->
          <div class="w-64 min-h-screen bg-gray-800 text-white p-4 flex text-center item-center flex-col">
-            <h2 class="text-2xl font-bold mb-6">Admin Panel</h2><a href="<?php echo BASE_URL; ?>/admin/auth/logout" 
+            <h2 class="text-2xl font-bold mb-6">Admin Panel</h2><a href="<?php echo BASE_URL; ?>/<?php echo ADMIN_ROUTE_PREFIX; ?>/auth/logout" 
                 class="block text-center py-2.5 px-4 rounded bg-red-500 hover:bg-red-600">
                 Đăng xuất
                 </a>
             <nav class="flex-grow">
-                <a href="<?php echo BASE_URL; ?>/admin/dashboard" class="block py-2.5 px-4 rounded hover:bg-gray-700">Dashboard</a>
-                <a href="<?php echo BASE_URL; ?>/admin/product" class="block py-2.5 px-4 rounded hover:bg-gray-700">Sản phẩm</a>
-                <a href="<?php echo BASE_URL; ?>/admin/taxonomy" class="block py-2.5 px-4 rounded hover:bg-gray-700">Phân loại</a>
-                <a href="<?php echo BASE_URL; ?>/admin/banner" class="block py-2.5 px-4 rounded hover:bg-gray-700">Banner</a>
-                <a href="<?php echo BASE_URL; ?>/admin/productattribute" class="block py-2.5 px-4 rounded hover:bg-gray-700">Thuộc tính</a>
+                <a href="<?php echo BASE_URL; ?>/<?php echo ADMIN_ROUTE_PREFIX; ?>/dashboard" class="block py-2.5 px-4 rounded hover:bg-gray-700">Dashboard</a>
+                <a href="<?php echo BASE_URL; ?>/<?php echo ADMIN_ROUTE_PREFIX; ?>/product" class="block py-2.5 px-4 rounded hover:bg-gray-700">Sản phẩm</a>
+                <a href="<?php echo BASE_URL; ?>/<?php echo ADMIN_ROUTE_PREFIX; ?>/taxonomy" class="block py-2.5 px-4 rounded hover:bg-gray-700">Phân loại</a>
+                <a href="<?php echo BASE_URL; ?>/<?php echo ADMIN_ROUTE_PREFIX; ?>/banner" class="block py-2.5 px-4 rounded hover:bg-gray-700">Banner</a>
+                <a href="<?php echo BASE_URL; ?>/<?php echo ADMIN_ROUTE_PREFIX; ?>/productattribute" class="block py-2.5 px-4 rounded hover:bg-gray-700">Thuộc tính</a>
             </nav>
         </div>
 

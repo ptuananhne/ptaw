@@ -7,7 +7,7 @@ class BannerController extends Controller
     public function __construct()
     {
         if (!isset($_SESSION['admin_id'])) {
-            header('Location: ' . BASE_URL . '/admin/auth/login');
+            header('Location: ' . BASE_URL . '/' . ADMIN_ROUTE_PREFIX . '/auth/login');
             exit;
         }
         $this->bannerManagerModel = $this->model('BannerManager');
@@ -67,12 +67,12 @@ class BannerController extends Controller
                     $imagePath = $uploadResult['path'];
                 } else {
                     flash('banner_message', $uploadResult['error'], 'bg-red-100 text-red-700');
-                    header('Location: ' . BASE_URL . '/admin/banner');
+                    header('Location: ' . BASE_URL . '/' . ADMIN_ROUTE_PREFIX . '/banner');
                     exit;
                 }
             } else {
                 flash('banner_message', 'Vui lòng chọn ảnh cho banner.', 'bg-red-100 text-red-700');
-                header('Location: ' . BASE_URL . '/admin/banner');
+                header('Location: ' . BASE_URL . '/' . ADMIN_ROUTE_PREFIX . '/banner');
                 exit;
             }
 
@@ -89,7 +89,7 @@ class BannerController extends Controller
                 flash('banner_message', 'Thêm banner thất bại.', 'bg-red-100 text-red-700');
             }
         }
-        header('Location: ' . BASE_URL . '/admin/banner');
+        header('Location: ' . BASE_URL . '/' . ADMIN_ROUTE_PREFIX . '/banner');
     }
 
     public function edit($id)
@@ -108,7 +108,7 @@ class BannerController extends Controller
                     $imagePath = $uploadResult['path'];
                 } else {
                     flash('banner_message', $uploadResult['error'], 'bg-red-100 text-red-700');
-                    header('Location: ' . BASE_URL . '/admin/banner');
+                    header('Location: ' . BASE_URL . '/' . ADMIN_ROUTE_PREFIX . '/banner');
                     exit;
                 }
             }
@@ -125,10 +125,10 @@ class BannerController extends Controller
             } else {
                 flash('banner_message', 'Cập nhật banner thất bại.', 'bg-red-100 text-red-700');
             }
-            header('Location: ' . BASE_URL . '/admin/banner');
+            header('Location: ' . BASE_URL . '/' . ADMIN_ROUTE_PREFIX . '/banner');
         } else {
             // Hiển thị dữ liệu cho modal edit (sẽ được xử lý bằng JS)
-            header('Location: ' . BASE_URL . '/admin/banner');
+            header('Location: ' . BASE_URL . '/' . ADMIN_ROUTE_PREFIX . '/banner');
         }
     }
 
@@ -141,7 +141,7 @@ class BannerController extends Controller
                 flash('banner_message', 'Xóa banner thất bại.', 'bg-red-100 text-red-700');
             }
         }
-        header('Location: ' . BASE_URL . '/admin/banner');
+        header('Location: ' . BASE_URL . '/' . ADMIN_ROUTE_PREFIX . '/banner');
     }
 
     private function handleImageUpload($file)

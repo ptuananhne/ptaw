@@ -27,16 +27,16 @@ function is_active($path, $current_uri) {
     <div class="flex">
         <!-- Sidebar -->
        <div class="w-64 min-h-screen bg-gray-800 text-white p-4 flex text-center item-center flex-col">
-            <h2 class="text-2xl font-bold mb-6">Admin Panel</h2><a href="<?php echo BASE_URL; ?>/admin/auth/logout" 
+            <h2 class="text-2xl font-bold mb-6">Admin Panel</h2><a href="<?php echo BASE_URL; ?>/<?php echo ADMIN_ROUTE_PREFIX; ?>/auth/logout" 
                 class="block text-center py-2.5 px-4 rounded bg-red-500 hover:bg-red-600">
                 Đăng xuất
                 </a>
             <nav class="flex-grow">
-                <a href="<?php echo BASE_URL; ?>/admin/dashboard" class="block py-2.5 px-4 rounded hover:bg-gray-700">Dashboard</a>
-                <a href="<?php echo BASE_URL; ?>/admin/product" class="block py-2.5 px-4 rounded hover:bg-gray-700">Sản phẩm</a>
-                <a href="<?php echo BASE_URL; ?>/admin/taxonomy" class="block py-2.5 px-4 rounded bg-gray-700">Phân loại</a>
-                <a href="<?php echo BASE_URL; ?>/admin/banner" class="block py-2.5 px-4 rounded hover:bg-gray-700">Banner</a>
-                <a href="<?php echo BASE_URL; ?>/admin/productattribute" class="block py-2.5 px-4 rounded hover:bg-gray-700">Thuộc tính</a>
+                <a href="<?php echo BASE_URL; ?>/<?php echo ADMIN_ROUTE_PREFIX; ?>/dashboard" class="block py-2.5 px-4 rounded hover:bg-gray-700">Dashboard</a>
+                <a href="<?php echo BASE_URL; ?>/<?php echo ADMIN_ROUTE_PREFIX; ?>/product" class="block py-2.5 px-4 rounded hover:bg-gray-700">Sản phẩm</a>
+                <a href="<?php echo BASE_URL; ?>/<?php echo ADMIN_ROUTE_PREFIX; ?>/taxonomy" class="block py-2.5 px-4 rounded bg-gray-700">Phân loại</a>
+                <a href="<?php echo BASE_URL; ?>/<?php echo ADMIN_ROUTE_PREFIX; ?>/banner" class="block py-2.5 px-4 rounded hover:bg-gray-700">Banner</a>
+                <a href="<?php echo BASE_URL; ?>/<?php echo ADMIN_ROUTE_PREFIX; ?>/productattribute" class="block py-2.5 px-4 rounded hover:bg-gray-700">Thuộc tính</a>
             </nav>
         </div>
 
@@ -49,7 +49,7 @@ function is_active($path, $current_uri) {
                 <!-- Categories Column -->
                 <div class="bg-white p-6 rounded-lg shadow-md flex flex-col">
                     <h3 class="text-xl font-semibold mb-4 border-b pb-2">Danh mục</h3>
-                    <form id="add-category-form" action="<?php echo BASE_URL; ?>/admin/taxonomy/addCategory" method="POST" class="mb-4">
+                    <form id="add-category-form" action="<?php echo BASE_URL; ?>/<?php echo ADMIN_ROUTE_PREFIX; ?>/taxonomy/addCategory" method="POST" class="mb-4">
                         <div class="flex gap-2">
                             <input type="text" name="category_name" placeholder="Tên danh mục mới..." class="flex-1 shadow-sm border rounded px-3 py-2" required>
                             <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">+</button>
@@ -63,7 +63,7 @@ function is_active($path, $current_uri) {
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 drag-handle" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
                                 <span class="category-name"><?php echo htmlspecialchars($category->name); ?> (<?php echo $category->product_count; ?>)</span>
                             </div>
-                            <form action="<?php echo BASE_URL; ?>/admin/taxonomy/deleteCategory/<?php echo $category->id; ?>" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa danh mục này?');">
+                            <form action="<?php echo BASE_URL; ?>/<?php echo ADMIN_ROUTE_PREFIX; ?>/taxonomy/deleteCategory/<?php echo $category->id; ?>" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa danh mục này?');">
                                 <button type="submit" class="text-red-500 hover:text-red-700 text-xs">Xóa</button>
                             </form>
                         </div>
@@ -86,7 +86,7 @@ function is_active($path, $current_uri) {
                 <!-- Brands Column -->
                 <div class="bg-white p-6 rounded-lg shadow-md flex flex-col">
                     <h3 class="text-xl font-semibold mb-4 border-b pb-2">Thương hiệu</h3>
-                    <form id="add-brand-form" action="<?php echo BASE_URL; ?>/admin/taxonomy/addBrand" method="POST" enctype="multipart/form-data" class="mb-4 space-y-2">
+                    <form id="add-brand-form" action="<?php echo BASE_URL; ?>/<?php echo ADMIN_ROUTE_PREFIX; ?>/taxonomy/addBrand" method="POST" enctype="multipart/form-data" class="mb-4 space-y-2">
                         <input type="text" name="brand_name" placeholder="Tên thương hiệu mới..." class="w-full shadow-sm border rounded px-3 py-2" required>
                         <input type="file" name="brand_logo" class="w-full text-sm">
                         <button type="submit" class="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Thêm thương hiệu</button>
@@ -99,7 +99,7 @@ function is_active($path, $current_uri) {
                                 <img src="<?php echo BASE_URL . '/' . htmlspecialchars($brand->logo_url); ?>" class="w-8 h-8 object-contain" alt="">
                                 <span class="brand-name"><?php echo htmlspecialchars($brand->name); ?> (<?php echo $brand->product_count; ?>)</span>
                             </div>
-                            <form action="<?php echo BASE_URL; ?>/admin/taxonomy/deleteBrand/<?php echo $brand->id; ?>" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa thương hiệu này?');">
+                            <form action="<?php echo BASE_URL; ?>/<?php echo ADMIN_ROUTE_PREFIX; ?>/taxonomy/deleteBrand/<?php echo $brand->id; ?>" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa thương hiệu này?');">
                                 <button type="submit" class="text-red-500 hover:text-red-700 text-xs">Xóa</button>
                             </form>
                         </div>
@@ -138,7 +138,7 @@ function is_active($path, $current_uri) {
                     const formData = new FormData();
                     orderIds.forEach(id => formData.append('order[]', id));
 
-                    fetch('<?php echo BASE_URL; ?>/admin/taxonomy/updateCategoryOrder', {
+                    fetch('<?php echo BASE_URL; ?>/<?php echo ADMIN_ROUTE_PREFIX; ?>/taxonomy/updateCategoryOrder', {
                             method: 'POST',
                             body: formData
                         })
@@ -165,7 +165,7 @@ function is_active($path, $current_uri) {
                 selectedCategoryId = item.dataset.id;
                 linkingCategoryName.textContent = item.querySelector('span.category-name').textContent.split('(')[0].trim();
 
-                const response = await fetch(`<?php echo BASE_URL; ?>/admin/taxonomy/getBrandLinks/${selectedCategoryId}`);
+                const response = await fetch(`<?php echo BASE_URL; ?>/<?php echo ADMIN_ROUTE_PREFIX; ?>/taxonomy/getBrandLinks/${selectedCategoryId}`);
                 const linkedBrandIds = await response.json();
 
                 brandCheckboxList.innerHTML = '';
@@ -189,7 +189,7 @@ function is_active($path, $current_uri) {
                 if (!selectedCategoryId) return;
                 const formData = new FormData(linkingForm);
                 formData.append('category_id', selectedCategoryId);
-                const response = await fetch(`<?php echo BASE_URL; ?>/admin/taxonomy/updateLinks`, {
+                const response = await fetch(`<?php echo BASE_URL; ?>/<?php echo ADMIN_ROUTE_PREFIX; ?>/taxonomy/updateLinks`, {
                     method: 'POST',
                     body: new URLSearchParams(formData)
                 });

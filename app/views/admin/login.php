@@ -3,7 +3,7 @@ if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
 if (isset($_SESSION['user_id'])) {
-    header('Location: ' . BASE_URL . '/admin/dashboard');
+    header('Location: ' . BASE_URL . '/' . ADMIN_ROUTE_PREFIX .'/dashboard');
     exit();
 }
 ?>
@@ -27,7 +27,7 @@ if (isset($_SESSION['user_id'])) {
             </div>
         <?php endif; ?>
 
-        <form action="<?php echo BASE_URL; ?>/admin/auth/login" method="POST">
+        <form action="<?php echo BASE_URL; ?>/<?php echo ADMIN_ROUTE_PREFIX; ?>/auth/login" method="POST">
             <div class="mb-4">
                 <label for="username" class="block text-gray-700 text-sm font-bold mb-2">Tên đăng nhập</label>
                 <input type="text" name="username" id="username" value="<?php echo htmlspecialchars($data['username'] ?? ''); ?>" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>

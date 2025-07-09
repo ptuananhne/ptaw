@@ -8,7 +8,7 @@ class ProductAttributeController extends Controller
     public function __construct()
     {
         if (!isset($_SESSION['admin_id'])) {
-            header('Location: ' . BASE_URL . '/admin/auth/login');
+            header('Location: ' . BASE_URL . '/' . ADMIN_ROUTE_PREFIX . '/auth/login');
             exit;
         }
         // Gọi đến model đã được đổi tên
@@ -38,7 +38,7 @@ class ProductAttributeController extends Controller
                 flash('attribute_message', 'Tên thuộc tính không được để trống.', 'bg-red-100 text-red-700');
             }
         }
-        header('Location: ' . BASE_URL . '/admin/productAttribute');
+        header('Location: ' . BASE_URL . '/' . ADMIN_ROUTE_PREFIX . '/productAttribute');
         exit;
     }
 
@@ -47,7 +47,7 @@ class ProductAttributeController extends Controller
         $attribute = $this->productAttributeModel->findById($id);
         if (!$attribute) {
             // Cập nhật đường dẫn
-            header('Location: ' . BASE_URL . '/admin/productAttribute');
+            header('Location: ' . BASE_URL . '/' . ADMIN_ROUTE_PREFIX . '/productAttribute');
             exit;
         }
 
@@ -76,7 +76,7 @@ class ProductAttributeController extends Controller
             }
         }
         // Cập nhật đường dẫn
-        header('Location: ' . BASE_URL . '/admin/productAttribute/edit/' . $id);
+        header('Location: ' . BASE_URL . '/' . ADMIN_ROUTE_PREFIX . '/productAttribute/edit/' . $id);
         exit;
     }
 
@@ -90,7 +90,7 @@ class ProductAttributeController extends Controller
             }
         }
         // Cập nhật đường dẫn
-        header('Location: ' . BASE_URL . '/admin/productAttribute');
+       header('Location: ' . BASE_URL . '/' . ADMIN_ROUTE_PREFIX . '/productAttribute');
         exit;
     }
 }

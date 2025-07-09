@@ -106,16 +106,16 @@
     <div class="flex">
         <!-- Sidebar -->
           <div class="w-64 min-h-screen bg-gray-800 text-white p-4 flex text-center item-center flex-col">
-            <h2 class="text-2xl font-bold mb-6">Admin Panel</h2><a href="<?php echo BASE_URL; ?>/admin/auth/logout" 
+            <h2 class="text-2xl font-bold mb-6">Admin Panel</h2><a href="<?php echo BASE_URL; ?>/<?php echo ADMIN_ROUTE_PREFIX; ?>/auth/logout" 
                 class="block text-center py-2.5 px-4 rounded bg-red-500 hover:bg-red-600">
                 Đăng xuất
                 </a>
             <nav class="flex-grow">
-                <a href="<?php echo BASE_URL; ?>/admin/dashboard" class="block py-2.5 px-4 rounded hover:bg-gray-700">Dashboard</a>
-                <a href="<?php echo BASE_URL; ?>/admin/product" class="block py-2.5 px-4 rounded bg-gray-700">Sản phẩm</a>
-                <a href="<?php echo BASE_URL; ?>/admin/taxonomy" class="block py-2.5 px-4 rounded hover:bg-gray-700">Phân loại</a>
-                <a href="<?php echo BASE_URL; ?>/admin/banner" class="block py-2.5 px-4 rounded hover:bg-gray-700">Banner</a>
-                <a href="<?php echo BASE_URL; ?>/admin/productattribute" class="block py-2.5 px-4 rounded hover:bg-gray-700">Thuộc tính</a>
+                <a href="<?php echo BASE_URL; ?>/<?php echo ADMIN_ROUTE_PREFIX; ?>/dashboard" class="block py-2.5 px-4 rounded hover:bg-gray-700">Dashboard</a>
+                <a href="<?php echo BASE_URL; ?>/<?php echo ADMIN_ROUTE_PREFIX; ?>/product" class="block py-2.5 px-4 rounded bg-gray-700">Sản phẩm</a>
+                <a href="<?php echo BASE_URL; ?>/<?php echo ADMIN_ROUTE_PREFIX; ?>/taxonomy" class="block py-2.5 px-4 rounded hover:bg-gray-700">Phân loại</a>
+                <a href="<?php echo BASE_URL; ?>/<?php echo ADMIN_ROUTE_PREFIX; ?>/banner" class="block py-2.5 px-4 rounded hover:bg-gray-700">Banner</a>
+                <a href="<?php echo BASE_URL; ?>/<?php echo ADMIN_ROUTE_PREFIX; ?>/productattribute" class="block py-2.5 px-4 rounded hover:bg-gray-700">Thuộc tính</a>
             </nav>
         </div>
 
@@ -123,11 +123,11 @@
         <div class="flex-1 p-10">
             <div class="flex justify-between items-center mb-6">
                 <h1 class="text-3xl font-bold"><?php echo htmlspecialchars($data['title']); ?></h1>
-                <a href="<?php echo BASE_URL; ?>/admin/product" class="text-blue-500 hover:text-blue-700">&larr; Quay lại danh sách</a>
+                <a href="<?php echo BASE_URL; ?>/<?php echo ADMIN_ROUTE_PREFIX; ?>/product" class="text-blue-500 hover:text-blue-700">&larr; Quay lại danh sách</a>
             </div>
             <?php flash('product_message'); ?>
 
-            <form id="product-form" action="<?php echo BASE_URL; ?>/admin/product/edit/<?php echo $product->id; ?>" method="POST" enctype="multipart/form-data">
+            <form id="product-form" action="<?php echo BASE_URL; ?>/<?php echo ADMIN_ROUTE_PREFIX; ?>/product/edit/<?php echo $product->id; ?>" method="POST" enctype="multipart/form-data">
                 <input type="hidden" id="featured_image_url" name="featured_image_url" value="<?php echo htmlspecialchars($product->image_url); ?>">
                 <?php if (!empty($errors['form'])): ?>
                     <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6" role="alert">
@@ -357,7 +357,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const formData = new FormData();
                 formData.append('image_id', imageId);
 
-                fetch('<?php echo BASE_URL; ?>/admin/product/delete_gallery_image', {
+                fetch('<?php echo BASE_URL; ?>/<?php echo ADMIN_ROUTE_PREFIX; ?>/product/delete_gallery_image', {
                     method: 'POST',
                     body: formData
                 })

@@ -7,7 +7,7 @@ class TaxonomyController extends Controller
     public function __construct()
     {
         if (!isset($_SESSION['admin_id'])) {
-            header('Location: ' . BASE_URL . '/admin/auth/login');
+            header('Location: ' . BASE_URL . '/' . ADMIN_ROUTE_PREFIX . '/auth/login');
             exit;
         }
         $this->taxonomyModel = $this->model('Taxonomy');
@@ -32,7 +32,7 @@ class TaxonomyController extends Controller
                 flash('taxonomy_message', 'Thêm danh mục thất bại.', 'bg-red-100 text-red-700');
             }
         }
-        header('Location: ' . BASE_URL . '/admin/taxonomy');
+        header('Location: ' . BASE_URL . '/' . ADMIN_ROUTE_PREFIX . '/taxonomy');
     }
 
     public function deleteCategory($id)
@@ -42,7 +42,7 @@ class TaxonomyController extends Controller
         } else {
             flash('taxonomy_message', 'Xóa danh mục thất bại. Có thể do danh mục này vẫn còn sản phẩm.', 'bg-red-100 text-red-700');
         }
-        header('Location: ' . BASE_URL . '/admin/taxonomy');
+        header('Location: ' . BASE_URL . '/' . ADMIN_ROUTE_PREFIX . '/taxonomy');
     }
 
     // --- BRAND ACTIONS ---
@@ -56,7 +56,7 @@ class TaxonomyController extends Controller
                     $logoPath = $uploadResult['path'];
                 } else {
                     flash('taxonomy_message', $uploadResult['error'], 'bg-red-100 text-red-700');
-                    header('Location: ' . BASE_URL . '/admin/taxonomy');
+                    header('Location: ' . BASE_URL . '/' . ADMIN_ROUTE_PREFIX . '/taxonomy');
                     exit;
                 }
             }
@@ -66,7 +66,7 @@ class TaxonomyController extends Controller
                 flash('taxonomy_message', 'Thêm thương hiệu thất bại.', 'bg-red-100 text-red-700');
             }
         }
-        header('Location: ' . BASE_URL . '/admin/taxonomy');
+        header('Location: ' . BASE_URL . '/' . ADMIN_ROUTE_PREFIX . '/taxonomy');
     }
 
     public function deleteBrand($id)
@@ -76,7 +76,7 @@ class TaxonomyController extends Controller
         } else {
             flash('taxonomy_message', 'Xóa thương hiệu thất bại. Có thể do thương hiệu này vẫn còn sản phẩm.', 'bg-red-100 text-red-700');
         }
-        header('Location: ' . BASE_URL . '/admin/taxonomy');
+        header('Location: ' . BASE_URL . '/' . ADMIN_ROUTE_PREFIX . '/taxonomy');
     }
 
     // --- RELATIONSHIP ACTIONS (AJAX) ---

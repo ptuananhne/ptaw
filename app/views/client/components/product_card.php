@@ -9,7 +9,6 @@ if (!function_exists('render_product_card')) {
      */
     function render_product_card($product)
     {
-        // Ensure the $product variable exists to avoid errors
         if (!isset($product)) {
             return;
         }
@@ -33,7 +32,6 @@ if (!function_exists('render_product_card')) {
                     </div>
                     <div class="product-card-footer">
                         <p class="product-card-price">
-                            <?php // --- START: ĐOẠN MÃ SỬA LỖI HIỂN THỊ GIÁ --- ?>
                             <?php if (isset($product->display_price) && $product->display_price > 0): ?>
                                 <?php if ($product->product_type == 'variable'): ?>
                                     Từ <?= number_format($product->display_price, 0, ',', '.') ?> đ

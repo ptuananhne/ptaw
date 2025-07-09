@@ -19,7 +19,7 @@ $current_path = strtok($current_uri, '?');
 // Đồng thời, không chuyển hướng nếu đã ở trang login.
 if (!isset($_SESSION['admin_id']) && !str_ends_with($current_path, '/admin/login')) {
     // Chuyển hướng về trang đăng nhập nếu chưa đăng nhập và không phải đang ở trang login
-    header('Location: ' . BASE_URL . '/admin/login');
+    header('Location: ' . BASE_URL . '/' . ADMIN_ROUTE_PREFIX . '/login');
     exit();
 }
 
