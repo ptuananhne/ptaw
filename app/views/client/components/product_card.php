@@ -33,11 +33,17 @@ if (!function_exists('render_product_card')) {
                     </div>
                     <div class="product-card-footer">
                         <p class="product-card-price">
-                            <?php if (isset($product->price) && $product->price > 0): ?>
-                                <?= number_format($product->price, 0, ',', '.') ?> đ
+                            <?php // --- START: ĐOẠN MÃ SỬA LỖI HIỂN THỊ GIÁ --- ?>
+                            <?php if (isset($product->display_price) && $product->display_price > 0): ?>
+                                <?php if ($product->product_type == 'variable'): ?>
+                                    Từ <?= number_format($product->display_price, 0, ',', '.') ?> đ
+                                <?php else: ?>
+                                    <?= number_format($product->display_price, 0, ',', '.') ?> đ
+                                <?php endif; ?>
                             <?php else: ?>
                                 Liên hệ
                             <?php endif; ?>
+                            <?php // --- END: ĐOẠN MÃ SỬA LỖI HIỂN THỊ GIÁ --- ?>
                         </p>
                         <div class="product-card-action">
                             <span class="action-text">Xem chi tiết</span>
@@ -50,3 +56,5 @@ if (!function_exists('render_product_card')) {
 <?php
     }
 }
+
+?>

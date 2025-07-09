@@ -1,4 +1,8 @@
-<?php $this->view('client/layouts/header', $data); ?>
+<?php
+    $this->view('client/layouts/header', $data);
+    // Nạp file chứa hàm render_product_card() để có thể sử dụng ở dưới
+   require_once 'components/product_card.php'; // Nạp tệp hàm component 
+?>
 
 <!-- Banner Section -->
 <section class="banner-section">
@@ -31,37 +35,15 @@
     </div>
 </section>
 
-<?php if (!empty($featuredProducts)): ?>
+<?php if (!empty($data['featuredProducts'])): ?>
     <section class="product-carousel-section">
         <h2 class="section-title">Sản phẩm nổi bật</h2>
         <div class="product-slider">
             <button class="slider-btn prev" aria-label="Previous product">&lt;</button>
             <div class="slider-track-container">
                 <div class="slider-track">
-                    <?php foreach ($featuredProducts as $product): ?>
-                        <div class="product-card">
-                            <a href="<?= BASE_URL . '/product/' . $product->slug ?>">
-                                <div class="product-image-wrapper">
-                                    <img class="product-image" src="<?= BASE_URL . '/' . htmlspecialchars($product->image_url ?? '') ?>" alt="<?= htmlspecialchars($product->name) ?>">
-                                </div>
-                                <div class="product-card-content">
-                                    <div>
-                                        <p class="product-card-category"><?= htmlspecialchars($product->category_name) ?></p>
-                                        <h3 class="product-card-name"><?= htmlspecialchars($product->name) ?></h3>
-                                    </div>
-                                    <div>
-                                        <p class="product-card-price">
-                                            <?php if (isset($product->price) && $product->price > 0): ?>
-                                                <?= number_format($product->price, 0, ',', '.') ?> đ
-                                            <?php else: ?>
-                                                Liên hệ
-                                            <?php endif; ?>
-                                        </p>
-                                        <span class="product-card-link">Xem chi tiết</span>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
+                    <?php foreach ($data['featuredProducts'] as $product): ?>
+                        <?php render_product_card($product); // Gọi hàm để render thẻ sản phẩm ?>
                     <?php endforeach; ?>
                 </div>
             </div>
@@ -71,8 +53,8 @@
 <?php endif; ?>
 
 
-<?php if (!empty($productsByCategory)): ?>
-    <?php foreach ($productsByCategory as $categoryName => $categoryData): ?>
+<?php if (!empty($data['productsByCategory'])): ?>
+    <?php foreach ($data['productsByCategory'] as $categoryName => $categoryData): ?>
         <?php if (!empty($categoryData['products'])): ?>
             <section class="product-carousel-section">
                 <div class="section-header">
@@ -84,29 +66,7 @@
                     <div class="slider-track-container">
                         <div class="slider-track">
                             <?php foreach ($categoryData['products'] as $product): ?>
-                                <div class="product-card">
-                                    <a href="<?= BASE_URL . '/product/' . $product->slug ?>">
-                                        <div class="product-image-wrapper">
-                                            <img class="product-image" src="<?= BASE_URL . '/' . htmlspecialchars($product->image_url ?? '') ?>" alt="<?= htmlspecialchars($product->name) ?>">
-                                        </div>
-                                        <div class="product-card-content">
-                                            <div>
-                                                <p class="product-card-category"><?= htmlspecialchars($product->category_name) ?></p>
-                                                <h3 class="product-card-name"><?= htmlspecialchars($product->name) ?></h3>
-                                            </div>
-                                            <div>
-                                                <p class="product-card-price">
-                                                    <?php if (isset($product->price) && $product->price > 0): ?>
-                                                        <?= number_format($product->price, 0, ',', '.') ?> đ
-                                                    <?php else: ?>
-                                                        Liên hệ
-                                                    <?php endif; ?>
-                                                </p>
-                                                <span class="product-card-link">Xem chi tiết</span>
-                                            </div>
-                                        </div>
-                                    </a>
-                                </div>
+                                <?php render_product_card($product); // Chỉ cần gọi hàm này, nó đã chứa thẻ product-card ?>
                             <?php endforeach; ?>
                         </div>
                     </div>

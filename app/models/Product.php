@@ -8,7 +8,30 @@ class Product
         $this->db = Database::getInstance()->getConnection();
     }
 
-    // --- HÀM TRỢ GIÚP ---
+    /**
+     * Helper function to generate the SQL for calculating display price.
+     * It gets the minimum price from variants if it's a variable product.
+     *
+     * CẬP NHẬT:
+     * - Sử dụng COALESCE để xử lý các trường hợp giá NULL.
+     * - Ưu tiên lấy giá nhỏ nhất > 0 của biến thể.
+     * - Nếu không có, sẽ lấy giá gốc của sản phẩm.
+     * - Nếu vẫn không có, trả về 0 để hiển thị "Liên hệ".
+     */
+    private function getDisplayPriceSQL()
+    {
+        return "
+            (CASE
+                WHEN p.product_type = 'variable'
+                THEN COALESCE((SELECT MIN(pv.price) FROM product_variants pv WHERE pv.product_id = p.id AND pv.price > 0), p.price, 0)
+                ELSE COALESCE(p.price, 0)
+            END) as display_price
+        ";
+    }
+
+    /**
+     * Helper function to build WHERE clauses for filtering.
+     */
     private function buildWhereClause($options, &$whereClauses, &$params)
     {
         if (!empty($options['category_slug'])) {
@@ -21,12 +44,15 @@ class Product
         }
     }
 
-    // --- CÁC HÀM CHO TRANG CHỦ ---
+    /**
+     * Gets top viewed products for the homepage.
+     */
     public function getTopViewedProducts($limit = 8)
     {
         try {
+            $displayPriceSQL = $this->getDisplayPriceSQL();
             $query = "
-                SELECT p.name, p.slug, p.image_url, p.price, c.name as category_name
+                SELECT p.name, p.slug, p.image_url, p.product_type, c.name as category_name, {$displayPriceSQL}
                 FROM products p JOIN categories c ON p.category_id = c.id
                 ORDER BY p.view_count DESC, p.created_at DESC
                 LIMIT :limit";
@@ -40,13 +66,17 @@ class Product
         }
     }
 
+    /**
+     * Gets top products grouped by all categories for the homepage.
+     */
     public function getTopProductsGroupedByAllCategories($limit = 8)
     {
         try {
+            $displayPriceSQL = $this->getDisplayPriceSQL();
             $query = "
                 WITH RankedProducts AS (
                     SELECT
-                        p.id, p.name, p.slug, p.image_url, p.price,
+                        p.id, p.name, p.slug, p.image_url, p.product_type, {$displayPriceSQL},
                         c.id as category_id, c.name as category_name, c.slug as category_slug,
                         ROW_NUMBER() OVER(PARTITION BY p.category_id ORDER BY p.view_count DESC, p.created_at DESC) as rn
                     FROM products p
@@ -76,32 +106,14 @@ class Product
         }
     }
 
-    public function countAll()
-    {
-        try {
-            $stmt = $this->db->query("SELECT COUNT(*) FROM products");
-            return (int) $stmt->fetchColumn();
-        } catch (PDOException $e) {
-            error_log($e->getMessage());
-            return 0;
-        }
-    }
-
-    public function getAll()
-    {
-        try {
-            $stmt = $this->db->query("SELECT * FROM products ORDER BY created_at DESC");
-            return $stmt->fetchAll(PDO::FETCH_OBJ);
-        } catch (PDOException $e) {
-            error_log($e->getMessage());
-            return [];
-        }
-    }
-
-    // --- CÁC HÀM CHO TRANG DANH MỤC ---
+    /**
+     * Gets a list of products based on filters, sorting, and pagination for category pages.
+     */
     public function getFilteredProducts($options = [])
     {
-        $query = "SELECT p.*, c.name as category_name FROM products p JOIN categories c ON p.category_id = c.id";
+        $displayPriceSQL = $this->getDisplayPriceSQL();
+        $query = "SELECT p.*, c.name as category_name, {$displayPriceSQL} FROM products p JOIN categories c ON p.category_id = c.id";
+        
         $whereClauses = [];
         $params = [];
         $this->buildWhereClause($options, $whereClauses, $params);
@@ -110,14 +122,14 @@ class Product
             $query .= " WHERE " . implode(" AND ", $whereClauses);
         }
 
-        $orderBy = "p.view_count DESC";
+        $orderBy = "p.view_count DESC"; // Default sort
         if (!empty($options['sort_by'])) {
             switch ($options['sort_by']) {
                 case 'price_asc':
-                    $orderBy = "p.price ASC";
+                    $orderBy = "display_price ASC";
                     break;
                 case 'price_desc':
-                    $orderBy = "p.price DESC";
+                    $orderBy = "display_price DESC";
                     break;
                 case 'newest':
                     $orderBy = "p.created_at DESC";
@@ -146,6 +158,9 @@ class Product
         }
     }
 
+    /**
+     * Counts products based on filters for pagination.
+     */
     public function countFilteredProducts($options = [])
     {
         $query = "SELECT COUNT(p.id) as total FROM products p JOIN categories c ON p.category_id = c.id";
@@ -172,12 +187,15 @@ class Product
         }
     }
 
-    // --- CÁC HÀM CHO TRANG CHI TIẾT SẢN PHẨM ---
+    /**
+     * Gets a single product by its slug for the detail page.
+     */
     public function getProductBySlug($slug)
     {
         try {
+            $displayPriceSQL = $this->getDisplayPriceSQL();
             $query = "
-                SELECT p.*, c.slug as category_slug, c.name as category_name, b.name as brand_name
+                SELECT p.*, c.slug as category_slug, c.name as category_name, b.name as brand_name, {$displayPriceSQL}
                 FROM products p
                 LEFT JOIN categories c ON p.category_id = c.id
                 LEFT JOIN brands b ON p.brand_id = b.id
@@ -192,6 +210,25 @@ class Product
         }
     }
 
+    /**
+     * Gets all variants for a specific product.
+     */
+    public function getProductVariants($productId)
+    {
+        try {
+            $stmt = $this->db->prepare("SELECT * FROM product_variants WHERE product_id = :product_id ORDER BY price ASC");
+            $stmt->bindParam(':product_id', $productId, PDO::PARAM_INT);
+            $stmt->execute();
+            return $stmt->fetchAll(PDO::FETCH_OBJ);
+        } catch (PDOException $e) {
+            error_log($e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Gets the image gallery for a product.
+     */
     public function getProductGallery($productId)
     {
         try {
@@ -206,8 +243,7 @@ class Product
     }
 
     /**
-     * Tăng lượt xem cho sản phẩm.
-     * @param int $productId ID của sản phẩm cần tăng lượt xem.
+     * Increments the view count for a product.
      */
     public function incrementViewCount($productId)
     {
@@ -216,15 +252,17 @@ class Product
             $stmt->bindParam(':product_id', $productId, PDO::PARAM_INT);
             $stmt->execute();
         } catch (PDOException $e) {
-            // Ghi lại lỗi để debug nhưng không làm dừng chương trình
             error_log("Could not increment view count for product ID $productId: " . $e->getMessage());
         }
     }
 
-    // --- CÁC HÀM CHO TRANG TÌM KIẾM ---
+    /**
+     * Gets products based on a search keyword.
+     */
     public function searchProducts($options = [])
     {
-        $query = "SELECT p.*, c.name as category_name 
+        $displayPriceSQL = $this->getDisplayPriceSQL();
+        $query = "SELECT p.*, c.name as category_name, {$displayPriceSQL}
                   FROM products p 
                   LEFT JOIN categories c ON p.category_id = c.id";
         $whereClauses = [];
@@ -260,6 +298,9 @@ class Product
         }
     }
 
+    /**
+     * Counts products based on a search keyword.
+     */
     public function countSearchedProducts($options = [])
     {
         $query = "SELECT COUNT(p.id) as total 

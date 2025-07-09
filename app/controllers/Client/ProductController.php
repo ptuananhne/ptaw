@@ -21,9 +21,9 @@ class ProductController extends Controller
         $product = $productModel->getProductBySlug($slug);
 
         if (!$product) {
-            // Xử lý trang 404
-            echo "404 - Product not found";
-            exit();
+            // Thay vì echo, nên gọi một view 404 chuyên nghiệp hơn
+            $this->view('client/404'); 
+            return;
         }
 
         // Tăng lượt xem
@@ -35,13 +35,28 @@ class ProductController extends Controller
         // Lấy danh sách danh mục cho sidebar
         $allCategories = $categoryModel->getAllCategories();
 
+        // Khởi tạo mảng $data
         $data = [
             'title' => htmlspecialchars($product->name),
             'product' => $product,
             'gallery' => $gallery,
             'categories' => $allCategories
         ];
+        
+        // =============================================================
+        // === BỔ SUNG LOGIC LẤY DỮ LIỆU BIẾN THỂ (NÂNG CẤP V6.1) ===
+        // =============================================================
+        // Kiểm tra nếu sản phẩm là loại có biến thể
+        if ($product->product_type === 'variable') {
+            // Lấy tất cả các biến thể từ CSDL
+            $data['variants'] = $productModel->getProductVariants($product->id);
+            // Giải mã chuỗi JSON trong cột 'attributes' của sản phẩm chính 
+            // để biết cần hiển thị những nhóm lựa chọn nào (VD: Màu sắc, Dung lượng)
+            $data['product_attributes'] = json_decode($product->attributes, true);
+        }
+        // =============================================================
 
+        // Truyền tất cả dữ liệu sang view
         $this->view('client/product_detail', $data);
     }
 }
