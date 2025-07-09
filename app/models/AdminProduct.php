@@ -10,71 +10,186 @@ class AdminProduct
     }
 
     /**
-     * Lấy danh sách sản phẩm với bộ lọc và phân trang.
-     * @param array $filters Mảng chứa các điều kiện lọc.
-     * @param int $page Trang hiện tại.
-     * @param int $perPage Số sản phẩm mỗi trang.
-     * @return array
+     * Tạo một slug duy nhất bằng cách thêm số vào cuối nếu cần.
      */
-    public function getProducts($filters = [], $page = 1, $perPage = 10)
+    private function generateUniqueSlug($slug, $excludeId = null)
     {
-        $offset = ($page - 1) * $perPage;
+        $originalSlug = $slug;
+        $counter = 1;
 
-        // Xây dựng câu lệnh SQL cơ bản
-        $sql = "SELECT p.*, c.name as category_name, b.name as brand_name
-                FROM products p
-                JOIN categories c ON p.category_id = c.id
-                JOIN brands b ON p.brand_id = b.id";
-
-        // Xây dựng mệnh đề WHERE
-        list($whereClause, $params) = $this->buildWhereClause($filters);
-        $sql .= $whereClause;
-
-        // Thêm sắp xếp và phân trang
-        $sql .= " ORDER BY p.view_count DESC LIMIT :limit OFFSET :offset";
+        $sql = "SELECT id FROM products WHERE slug = :slug";
+        if ($excludeId) {
+            $sql .= " AND id != :exclude_id";
+        }
 
         $stmt = $this->db->prepare($sql);
 
-        // Gán các giá trị cho tham số của WHERE
+        while (true) {
+            $params = [':slug' => $slug];
+            if ($excludeId) {
+                $params[':exclude_id'] = $excludeId;
+            }
+            $stmt->execute($params);
+            if ($stmt->fetch() === false) {
+                break; // Slug is unique
+            }
+            // If not unique, append a number and try again
+            $slug = $originalSlug . '-' . $counter;
+            $counter++;
+        }
+        return $slug;
+    }
+
+    public function createProduct($data)
+    {
+        $this->db->beginTransaction();
+        try {
+            $uniqueSlug = $this->generateUniqueSlug($data['slug']);
+
+            $sql = "INSERT INTO products (name, slug, description, specifications, image_url, category_id, brand_id, product_type, price, attributes) 
+                    VALUES (:name, :slug, :description, :specifications, :image_url, :category_id, :brand_id, :product_type, :price, :attributes)";
+            $stmt = $this->db->prepare($sql);
+
+            $result = $stmt->execute([
+                ':name' => $data['name'],
+                ':slug' => $uniqueSlug,
+                ':description' => $data['description'],
+                ':specifications' => $data['specifications'],
+                ':image_url' => $data['image_url'],
+                ':category_id' => $data['category_id'],
+                ':brand_id' => $data['brand_id'],
+                ':product_type' => $data['product_type'],
+                ':price' => ($data['product_type'] == 'simple') ? $data['price'] : null,
+                ':attributes' => ($data['product_type'] == 'variable') ? $data['attributes_json'] : null
+            ]);
+
+            if (!$result) {
+                $this->db->rollBack();
+                return false;
+            }
+
+            $productId = $this->db->lastInsertId();
+
+            if ($data['product_type'] == 'variable' && !empty($data['variants'])) {
+                $this->syncVariants($productId, $data['variants']);
+            }
+
+            $this->db->commit();
+            return $productId;
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            error_log('Lỗi tạo sản phẩm: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function updateProduct($id, $data)
+    {
+        $this->db->beginTransaction();
+        try {
+            $uniqueSlug = $this->generateUniqueSlug($data['slug'], $id);
+
+            $sql = "UPDATE products SET 
+                        name = :name,
+                        slug = :slug,
+                        description = :description,
+                        specifications = :specifications,
+                        brand_id = :brand_id,
+                        product_type = :product_type,
+                        price = :price,
+                        attributes = :attributes";
+
+            if (isset($data['image_url'])) {
+                $sql .= ", image_url = :image_url";
+            }
+            $sql .= " WHERE id = :id";
+
+            $stmt = $this->db->prepare($sql);
+
+            $params = [
+                ':id' => $id,
+                ':name' => $data['name'],
+                ':slug' => $uniqueSlug,
+                ':description' => $data['description'],
+                ':specifications' => $data['specifications'],
+                ':brand_id' => $data['brand_id'],
+                ':product_type' => $data['product_type'],
+                ':price' => ($data['product_type'] == 'simple') ? $data['price'] : null,
+                ':attributes' => ($data['product_type'] == 'variable') ? $data['attributes_json'] : null
+            ];
+
+            if (isset($data['image_url'])) {
+                $params[':image_url'] = $data['image_url'];
+            }
+
+            $stmt->execute($params);
+
+            if ($data['product_type'] == 'variable') {
+                $this->syncVariants($id, $data['variants']);
+            } else {
+                $stmt_delete = $this->db->prepare("DELETE FROM product_variants WHERE product_id = :product_id");
+                $stmt_delete->execute([':product_id' => $id]);
+            }
+
+            $this->db->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            error_log('Lỗi cập nhật sản phẩm: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function syncVariants($productId, $variantsData)
+    {
+        $stmt = $this->db->prepare("DELETE FROM product_variants WHERE product_id = :product_id");
+        $stmt->execute([':product_id' => $productId]);
+
+        if (empty($variantsData)) return;
+
+        $sql = "INSERT INTO product_variants (product_id, price, attributes) VALUES (:product_id, :price, :attributes)";
+        $stmt = $this->db->prepare($sql);
+
+        foreach ($variantsData as $variant) {
+            $stmt->execute([
+                ':product_id' => $productId,
+                ':price' => $variant['price'],
+                ':attributes' => $variant['attributes']
+            ]);
+        }
+    }
+
+    // Các hàm khác không thay đổi
+    public function getProducts($filters = [], $page = 1, $perPage = 10)
+    {
+        $offset = ($page - 1) * $perPage;
+        $sql = "SELECT p.*, c.name as category_name, b.name as brand_name, (CASE WHEN p.product_type = 'variable' THEN (SELECT MIN(pv.price) FROM product_variants pv WHERE pv.product_id = p.id) ELSE p.price END) as min_price, (CASE WHEN p.product_type = 'variable' THEN (SELECT MAX(pv.price) FROM product_variants pv WHERE pv.product_id = p.id) ELSE p.price END) as max_price FROM products p JOIN categories c ON p.category_id = c.id JOIN brands b ON p.brand_id = b.id";
+        list($whereClause, $params) = $this->buildWhereClause($filters);
+        $sql .= $whereClause;
+        $sql .= " ORDER BY p.created_at DESC LIMIT :limit OFFSET :offset";
+        $stmt = $this->db->prepare($sql);
         foreach ($params as $key => &$val) {
             $stmt->bindParam($key, $val);
         }
-
-        // Gán giá trị cho LIMIT và OFFSET
         $stmt->bindParam(':limit', $perPage, PDO::PARAM_INT);
         $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
-
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
-
-    /**
-     * Đếm tổng số sản phẩm với bộ lọc.
-     * @param array $filters Mảng chứa các điều kiện lọc.
-     * @return int
-     */
     public function countProducts($filters = [])
     {
         $sql = "SELECT COUNT(p.id) as total FROM products p";
         list($whereClause, $params) = $this->buildWhereClause($filters);
         $sql .= $whereClause;
-
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
         $result = $stmt->fetch(PDO::FETCH_OBJ);
         return $result ? (int)$result->total : 0;
     }
-
-    /**
-     * Hàm trợ giúp để xây dựng mệnh đề WHERE và các tham số.
-     * @param array $filters
-     * @return array
-     */
     private function buildWhereClause($filters)
     {
         $where = " WHERE 1=1";
         $params = [];
-
         if (!empty($filters['name'])) {
             $where .= " AND p.name LIKE :name";
             $params[':name'] = '%' . $filters['name'] . '%';
@@ -89,20 +204,30 @@ class AdminProduct
         }
         return [$where, $params];
     }
-
-    // --- Các phương thức khác giữ nguyên ---
+    public function getProductById($id)
+    {
+        $stmt = $this->db->prepare("SELECT * FROM products WHERE id = :id");
+        $stmt->execute([':id' => $id]);
+        $product = $stmt->fetch(PDO::FETCH_OBJ);
+        if ($product && $product->product_type === 'variable') {
+            $stmt_variants = $this->db->prepare("SELECT * FROM product_variants WHERE product_id = :product_id ORDER BY id ASC");
+            $stmt_variants->execute([':product_id' => $id]);
+            $product->variants = $stmt_variants->fetchAll(PDO::FETCH_OBJ);
+        } else if ($product) {
+            $product->variants = [];
+        }
+        return $product;
+    }
     public function getAllCategories()
     {
         $stmt = $this->db->query("SELECT * FROM categories ORDER BY name ASC");
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
-
     public function getAllBrands()
     {
         $stmt = $this->db->query("SELECT * FROM brands ORDER BY name ASC");
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
-
     public function getBrandsByCategoryId($categoryId)
     {
         $sql = "SELECT b.id, b.name FROM brands b JOIN category_brand cb ON b.id = cb.brand_id WHERE cb.category_id = :category_id ORDER BY b.name ASC";
@@ -110,160 +235,13 @@ class AdminProduct
         $stmt->execute([':category_id' => $categoryId]);
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
-    /**
-     * Lấy thông tin một sản phẩm bằng ID.
-     * @param int $id
-     * @return object|false
-     */
-    public function getProductById($id)
-    {
-        $stmt = $this->db->prepare("SELECT * FROM products WHERE id = :id");
-        $stmt->execute([':id' => $id]);
-        return $stmt->fetch(PDO::FETCH_OBJ);
-    }
-
-    /**
-     * Thêm một sản phẩm mới vào CSDL.
-     * @param array $data Dữ liệu sản phẩm.
-     * @return bool
-     */
-    public function createProduct($data)
-    {
-        $sql = "INSERT INTO products (name, slug, description, specifications, image_url, category_id, brand_id, price) 
-                VALUES (:name, :slug, :description, :specifications, :image_url, :category_id, :brand_id, :price)";
-        $stmt = $this->db->prepare($sql);
-
-        return $stmt->execute([
-            ':name' => $data['name'],
-            ':slug' => $data['slug'],
-            ':description' => $data['description'],
-            ':specifications' => $data['specifications'],
-            ':image_url' => $data['image_url'],
-            ':category_id' => $data['category_id'],
-            ':brand_id' => $data['brand_id'],
-            ':price' => $data['price']
-        ]);
-    }
-
-    /**
-     * Cập nhật thông tin một sản phẩm.
-     * @param int $id ID sản phẩm.
-     * @param array $data Dữ liệu mới.
-     * @return bool
-     */
-    public function updateProduct($id, $data)
-    {
-        $sql = "UPDATE products SET 
-                    name = :name,
-                    slug = :slug,
-                    description = :description,
-                    specifications = :specifications,
-                    brand_id = :brand_id,
-                    price = :price
-                    -- Bỏ category_id ra khỏi câu lệnh UPDATE
-                WHERE id = :id";
-        $stmt = $this->db->prepare($sql);
-
-        return $stmt->execute([
-            ':id' => $id,
-            ':name' => $data['name'],
-            ':slug' => $data['slug'],
-            ':description' => $data['description'],
-            ':specifications' => $data['specifications'],
-            ':brand_id' => $data['brand_id'],
-            ':price' => $data['price']
-        ]);
-    }
-
-
-    /**
-     * Xóa một sản phẩm.
-     * @param int $id
-     * @return bool
-     */
     public function deleteProduct($id)
     {
-        // (Tùy chọn) Xóa file ảnh trước khi xóa bản ghi trong CSDL
         $product = $this->getProductById($id);
-        if ($product && !empty($product->image_url) && file_exists($product->image_url)) {
-            unlink($product->image_url);
+        if ($product && !empty($product->image_url) && file_exists(PUBLIC_PATH . '/' . $product->image_url)) {
+            unlink(PUBLIC_PATH . '/' . $product->image_url);
         }
-
         $stmt = $this->db->prepare("DELETE FROM products WHERE id = :id");
         return $stmt->execute([':id' => $id]);
-    }
-    /**
-     * Lấy tất cả ảnh trong thư viện của một sản phẩm.
-     * @param int $productId
-     * @return array
-     */
-    public function getGalleryImages($productId)
-    {
-        $stmt = $this->db->prepare("SELECT * FROM product_gallery WHERE product_id = :product_id ORDER BY sort_order ASC");
-        $stmt->execute([':product_id' => $productId]);
-        return $stmt->fetchAll(PDO::FETCH_OBJ);
-    }
-
-    /**
-     * Thêm nhiều ảnh mới vào thư viện.
-     * @param int $productId
-     * @param array $imagePaths Mảng chứa các đường dẫn ảnh.
-     * @return bool
-     */
-    public function addGalleryImages($productId, $imagePaths)
-    {
-        if (empty($imagePaths)) {
-            return true;
-        }
-        $sql = "INSERT INTO product_gallery (product_id, image_url) VALUES ";
-        $values = [];
-        foreach ($imagePaths as $path) {
-            $values[] = "(:product_id, '" . $path . "')";
-        }
-        $sql .= implode(', ', $values);
-        $stmt = $this->db->prepare($sql);
-        return $stmt->execute([':product_id' => $productId]);
-    }
-
-    /**
-     * Xóa một ảnh khỏi thư viện.
-     * @param int $imageId
-     * @return bool
-     */
-    public function deleteGalleryImage($imageId)
-    {
-        // Lấy thông tin ảnh để xóa file vật lý
-        $stmt = $this->db->prepare("SELECT image_url FROM product_gallery WHERE id = :id");
-        $stmt->execute([':id' => $imageId]);
-        $image = $stmt->fetch(PDO::FETCH_OBJ);
-
-        if ($image && file_exists($image->image_url)) {
-            unlink($image->image_url);
-        }
-
-        // Xóa bản ghi trong CSDL
-        $deleteStmt = $this->db->prepare("DELETE FROM product_gallery WHERE id = :id");
-        return $deleteStmt->execute([':id' => $imageId]);
-    }
-
-    /**
-     * Đặt một ảnh làm ảnh đại diện.
-     * @param int $productId
-     * @param int $imageId
-     * @return bool
-     */
-    public function setFeaturedImage($productId, $imageId)
-    {
-        // Lấy URL của ảnh trong thư viện
-        $stmt = $this->db->prepare("SELECT image_url FROM product_gallery WHERE id = :id AND product_id = :product_id");
-        $stmt->execute([':id' => $imageId, ':product_id' => $productId]);
-        $image = $stmt->fetch(PDO::FETCH_OBJ);
-
-        if ($image) {
-            // Cập nhật cột image_url trong bảng products
-            $updateStmt = $this->db->prepare("UPDATE products SET image_url = :image_url WHERE id = :id");
-            return $updateStmt->execute([':image_url' => $image->image_url, ':id' => $productId]);
-        }
-        return false;
     }
 }

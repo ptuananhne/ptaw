@@ -16,24 +16,25 @@
 
 <body class="bg-gray-100">
     <div class="flex">
-        <!-- Sidebar -->
+          <!-- Sidebar -->
         <div class="w-64 min-h-screen bg-gray-800 text-white p-4 flex flex-col">
             <h2 class="text-2xl font-bold mb-6">Admin</h2>
             <nav class="flex-grow">
                 <a href="<?php echo BASE_URL; ?>/admin/dashboard" class="block py-2.5 px-4 rounded hover:bg-gray-700">Dashboard</a>
                 <a href="<?php echo BASE_URL; ?>/admin/product" class="block py-2.5 px-4 rounded hover:bg-gray-700">Sản phẩm</a>
-                <a href="<?php echo BASE_URL; ?>/admin/taxonomy" class="block py-2.5 px-4 rounded bg-gray-700">Phân loại</a>
-                <!-- LINK MỚI -->
-                <a href="<?php echo BASE_URL; ?>/admin/banner" class="block py-2.5 px-4 rounded hover:bg-gray-700">Banner</a>
+                <a href="<?php echo BASE_URL; ?>/admin/taxonomy" class="block py-2.5 px-4 rounded hover:bg-gray-700">Phân loại</a>
+                <a href="<?php echo BASE_URL; ?>/admin/banner" class="block py-2.5 px-4 rounded bg-gray-700">Banner</a>
+                <a href="<?php echo BASE_URL; ?>/admin/product_attribute" class="block py-2.5 px-4 rounded bg-gray-700">Thuộc tính</a>
             </nav>
         </div>
+
 
         <!-- Main Content -->
         <div class="flex-1 p-10">
             <!-- Header -->
             <div class="flex justify-between items-center mb-6">
                 <h1 class="text-3xl font-bold"><?php echo $data['title']; ?></h1>
-                <a href="<?php echo BASE_URL; ?>/admin/auth/logout" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Đăng xuất</a>
+                <a href="<?php echo BASE_URL; ?>/admin/product/add" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-center leading-tight">+ Thêm Mới</a>
             </div>
 
             <!-- Flash Message -->
@@ -56,8 +57,6 @@
                         <option value="<?php echo $brand->id; ?>"><?php echo htmlspecialchars($brand->name); ?></option>
                     <?php endforeach; ?>
                 </select>
-                <!-- Sửa link Thêm Mới -->
-                <a href="<?php echo BASE_URL; ?>/admin/product/add" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-center leading-tight">+ Thêm Mới</a>
             </div>
 
             <div class="bg-white shadow-md rounded-lg overflow-x-auto">
@@ -66,6 +65,7 @@
                         <tr>
                             <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Ảnh</th>
                             <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Tên sản phẩm</th>
+                            <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Loại</th>
                             <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Giá</th>
                             <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Lượt xem</th>
                             <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Hành động</th>
@@ -96,23 +96,56 @@
                 currentPage: <?php echo $data['currentPage']; ?>
             };
 
+            function formatCurrency(number) {
+                if (number === null || isNaN(number)) return '';
+                return new Intl.NumberFormat('vi-VN', {
+                    style: 'currency',
+                    currency: 'VND'
+                }).format(number);
+            }
+
             function renderProducts(products) {
                 tableBody.innerHTML = '';
                 if (products.length === 0) {
-                    tableBody.innerHTML = '<tr><td colspan="7" class="text-center py-10 text-gray-500">Không tìm thấy sản phẩm nào phù hợp.</td></tr>';
+                    tableBody.innerHTML = '<tr><td colspan="6" class="text-center py-10 text-gray-500">Không tìm thấy sản phẩm nào phù hợp.</td></tr>';
                     return;
                 }
                 products.forEach(product => {
-                    const priceFormatted = new Intl.NumberFormat('vi-VN', {
-                        style: 'currency',
-                        currency: 'VND'
-                    }).format(product.price);
+                    let priceDisplay = '';
+                    if (product.product_type === 'variable') {
+                        if (product.min_price && product.max_price) {
+                            if (product.min_price === product.max_price) {
+                                priceDisplay = formatCurrency(product.min_price);
+                            } else {
+                                priceDisplay = `${formatCurrency(product.min_price)} - ${formatCurrency(product.max_price)}`;
+                            }
+                        } else {
+                            priceDisplay = 'Chưa có giá';
+                        }
+                    } else {
+                        priceDisplay = formatCurrency(product.price);
+                    }
+
                     const row = `
                 <tr>
-                    <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm"><img src="${'<?php echo BASE_URL; ?>/' + escapeHTML(product.image_url)}" alt="${escapeHTML(product.name)}" class="w-16 h-16 object-cover rounded"></td>
-                    <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm"><p class="text-gray-900 whitespace-no-wrap">${escapeHTML(product.name)}</p></td>
-                    <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm"><p class="text-gray-900 whitespace-no-wrap">${priceFormatted}</p></td>
-                    <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm"><p class="text-gray-900 whitespace-no-wrap">${product.view_count}</p></td>
+                    <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                        <img src="${'<?php echo BASE_URL; ?>/' + escapeHTML(product.image_url)}" alt="${escapeHTML(product.name)}" class="w-16 h-16 object-cover rounded">
+                    </td>
+                    <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                        <p class="text-gray-900 whitespace-no-wrap font-medium">${escapeHTML(product.name)}</p>
+                        <p class="text-gray-600 whitespace-no-wrap text-xs">${escapeHTML(product.category_name)} / ${escapeHTML(product.brand_name)}</p>
+                    </td>
+                    <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${product.product_type === 'variable' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}">
+                            ${product.product_type === 'variable' ? 'Có biến thể' : 'Đơn giản'}
+                        </span>
+                    </td>
+                    <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                        <p class="text-gray-900 whitespace-no-wrap font-semibold">${priceDisplay}</p>
+                    </td>
+                    <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                        <p class="text-gray-900 whitespace-no-wrap">${product.view_count}</p>
+                    </td>
                     <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                         <a href="<?php echo BASE_URL; ?>/admin/product/edit/${product.id}" class="text-indigo-600 hover:text-indigo-900 mr-4">Sửa</a>
                         <form action="<?php echo BASE_URL; ?>/admin/product/delete/${product.id}" method="POST" class="inline-block" onsubmit="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');">
@@ -129,15 +162,12 @@
                 if (totalPages <= 1) return;
 
                 let paginationHTML = '<div class="flex items-center">';
-                // Previous Button
                 paginationHTML += `<button data-page="${currentPage - 1}" class="pagination-link mx-1 px-3 py-1 rounded-md text-sm font-medium ${currentPage === 1 ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-white text-gray-700 hover:bg-gray-50'}" ${currentPage === 1 ? 'disabled' : ''}>&laquo; Trước</button>`;
 
-                // Page Numbers
                 for (let i = 1; i <= totalPages; i++) {
                     paginationHTML += `<button data-page="${i}" class="pagination-link mx-1 px-3 py-1 rounded-md text-sm font-medium ${i === currentPage ? 'bg-blue-500 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}">${i}</button>`;
                 }
 
-                // Next Button
                 paginationHTML += `<button data-page="${currentPage + 1}" class="pagination-link mx-1 px-3 py-1 rounded-md text-sm font-medium ${currentPage === totalPages ? 'bg-gray-200 text-gray-500 cursor-not-allowed' : 'bg-white text-gray-700 hover:bg-gray-50'}" ${currentPage === totalPages ? 'disabled' : ''}>Sau &raquo;</button>`;
                 paginationHTML += '</div>';
                 paginationContainer.innerHTML = paginationHTML;
@@ -158,7 +188,8 @@
                     console.error('Lỗi khi tải dữ liệu:', error);
                 }
             }
-
+            
+            // ... (các hàm và event listener khác giữ nguyên) ...
             async function updateBrandFilter(categoryId) {
                 const url = `<?php echo BASE_URL; ?>/admin/product/getBrandsForCategory/${categoryId}`;
                 try {

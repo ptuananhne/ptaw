@@ -27,16 +27,18 @@
 
 <body class="bg-gray-100">
     <div class="flex">
-        <!-- Sidebar -->
-        <div class="w-64 min-h-screen bg-gray-800 text-white p-4 flex flex-col">
+         <!-- Sidebar -->
+       <div class="w-64 min-h-screen bg-gray-800 text-white p-4 flex flex-col">
             <h2 class="text-2xl font-bold mb-6">Admin</h2>
             <nav class="flex-grow">
                 <a href="<?php echo BASE_URL; ?>/admin/dashboard" class="block py-2.5 px-4 rounded hover:bg-gray-700">Dashboard</a>
                 <a href="<?php echo BASE_URL; ?>/admin/product" class="block py-2.5 px-4 rounded hover:bg-gray-700">Sản phẩm</a>
                 <a href="<?php echo BASE_URL; ?>/admin/taxonomy" class="block py-2.5 px-4 rounded hover:bg-gray-700">Phân loại</a>
                 <a href="<?php echo BASE_URL; ?>/admin/banner" class="block py-2.5 px-4 rounded bg-gray-700">Banner</a>
+                <a href="<?php echo BASE_URL; ?>/admin/productAttribute" class="block py-2.5 px-4 rounded bg-gray-700">Thuộc tính</a>
             </nav>
         </div>
+
 
         <!-- Main Content -->
         <div class="flex-1 p-10">
