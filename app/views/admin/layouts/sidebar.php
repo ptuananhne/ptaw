@@ -27,7 +27,7 @@ function is_active_nav(string $path, string $current_uri): string
         </a>
     <nav class="flex-grow">
         <a href="<?php echo BASE_URL; ?>/admin/dashboard" 
-           class="block py-2.5 px-4 rounded hover:bg-gray-700 <?php echo is_active_nav('/admin/dashboard', $current_uri); ?>">
+           class="block py-2.5 px-4 rounded bg-gray-700 <?php echo is_active_nav('/admin/dashboard', $current_uri); ?>">
            Dashboard
         </a>
         <a href="<?php echo BASE_URL; ?>/admin/product" 

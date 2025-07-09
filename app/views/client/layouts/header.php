@@ -26,6 +26,7 @@
       })();
     </script>
     <link rel="stylesheet" href="<?= BASE_URL ?>/css/style.css?v=6.2">
+    <link rel="icon" type="image/png" href="<?= BASE_URL ?>/uploads/favicon.png">
 </head>
 
 <body class="<?= $page_class ?? '' ?>">

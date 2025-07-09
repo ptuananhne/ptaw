@@ -1,10 +1,7 @@
 <?php
-// Tệp: admin/login.php (đã tối ưu)
-// ---
 if (session_status() == PHP_SESSION_NONE) {
     session_start();
 }
-// Nếu đã đăng nhập, chuyển hướng đến dashboard
 if (isset($_SESSION['user_id'])) {
     header('Location: ' . BASE_URL . '/admin/dashboard');
     exit();
