@@ -1,8 +1,6 @@
-</main> <!-- end .main-content -->
-</div> <!-- end .main-wrapper -->
+</main> 
+</div> 
 <?php
-// Lấy các thông tin đã được định nghĩa sẵn để sử dụng trong footer
-// (Bạn có thể thay đổi các giá trị này trong file config.php nếu muốn)
 $zalo_shop_phone = '0845115765';
 $facebook_page_url = 'https://www.facebook.com/Phut89iPhone';
 $store_address_1 = '41B Lê Duẩn, BMT';
@@ -10,7 +8,7 @@ $store_address_2 = '323 Phan Chu Trinh, BMT';
 $store_phone = '02623 816 889';
 $store_email = 'phamtuananh02dl@gmail.com';
 ?>
-</div> <!-- end .page-container -->
+</div> 
 <footer class="site-footer">
     
         <div class="footer-main">
@@ -56,7 +54,6 @@ $store_email = 'phamtuananh02dl@gmail.com';
         </div>
 </footer>
 
-<!-- Các nút liên hệ nổi -->
 <div class="floating-contact">
     <a href="https://zalo.me/<?php echo $zalo_shop_phone; ?>" target="_blank" class="floating-btn zalo-float" title="Chat qua Zalo" aria-label="Chat qua Zalo">
         <i class="fa-solid fa-comment-dots"></i>
@@ -65,7 +62,6 @@ $store_email = 'phamtuananh02dl@gmail.com';
         <i class="fab fa-facebook-messenger"></i>
     </a>
 </div>
-<!-- Main JavaScript file -->
 <script src="<?= BASE_URL ?>/js/main.js?v=6.0"></script>
 
 </body>

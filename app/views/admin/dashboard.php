@@ -1,10 +1,6 @@
 <?php
-// Tệp: admin/dashboard.php (Đã tái cấu trúc)
-
-// 1. Nhúng header (đã bao gồm kiểm tra session và sidebar)
 include __DIR__ . '/layouts/header.php';
 
-// 2. Chuẩn bị dữ liệu cho trang
 $username = $data['username'] ?? 'Admin';
 $productCount = $data['productCount'] ?? 0;
 $categoryCount = $data['categoryCount'] ?? 0;
@@ -12,7 +8,6 @@ $brandCount = $data['brandCount'] ?? 0;
 $bannerCount = $data['bannerCount'] ?? 0;
 ?>
 
-<!-- Bắt đầu nội dung chính của trang Dashboard -->
 <div class="flex justify-between items-center mb-6">
     <h1 class="text-3xl font-bold">Dashboard</h1>
     <div class="flex items-center">
@@ -20,7 +15,6 @@ $bannerCount = $data['bannerCount'] ?? 0;
     </div>
 </div>
 
-<!-- Statistics Cards -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
     <!-- Products Card -->
     <div class="bg-white rounded-lg shadow p-6 flex items-center">

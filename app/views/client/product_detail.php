@@ -11,7 +11,6 @@
         </nav>
 
         <div class="product-layout">
-            <!-- Cột bên trái: Thư viện ảnh -->
             <div class="product-gallery-v2">
                 <div class="main-image-v2">
                     <img id="main-product-image" src="<?= BASE_URL . '/' . htmlspecialchars($product->image_url) ?>" alt="Ảnh chính của <?= htmlspecialchars($product->name) ?>" onerror="this.onerror=null;this.src='https://placehold.co/600x600/f8f9fa/ccc?text=Image+Not+Found';">
@@ -29,8 +28,6 @@
                     </div>
                 <?php endif; ?>
             </div>
-
-            <!-- Cột bên phải: Thông tin sản phẩm -->
             <div class="product-info-v2">
                 <h1 class="product-title-v2"><?= htmlspecialchars($product->name) ?></h1>
                 
@@ -53,7 +50,6 @@
                 <?php if ($product->product_type == 'variable' && !empty($variants) && !empty($product_attributes)): ?>
                     <div id="product-variants-container" class="product-variants-v2">
                         <?php foreach ($product_attributes as $attribute): ?>
-                            <!-- **FIX**: Thêm data-attribute-group-name để JS lấy tên thuộc tính một cách đáng tin cậy -->
                             <div class="variant-group-v2" data-attribute-group-name="<?= htmlspecialchars($attribute['name']) ?>">
                                 <label class="variant-label-v2"><?= htmlspecialchars($attribute['name']) ?>:</label>
                                 <div class="variant-options-v2">
@@ -91,17 +87,13 @@
             </div>
         </div>
 
-        <!-- Phần mô tả và thông số kỹ thuật -->
         <div class="product-details-tabs-v2">
             <div class="tab-headers">
                 <button class="tab-link active" data-tab="description">Mô tả sản phẩm</button>
                 <button class="tab-link" data-tab="specifications">Thông số kỹ thuật</button>
             </div>
             <div class="tab-content">
-                <div id="description" class="tab-pane active">
-                    <?= !empty($product->description) ? nl2br(htmlspecialchars($product->description)) : '<p>Chưa có mô tả cho sản phẩm này.</p>' ?>
-                </div>
-                <div id="specifications" class="tab-pane">
+                <div id="specifications" class="tab-pane active">
                     <?php if (!empty($product->specifications) && ($specs = json_decode($product->specifications, true)) && is_array($specs) && count($specs) > 0): ?>
                         <table class="specs-table-v2">
                             <tbody>
@@ -117,6 +109,10 @@
                         <p>Sản phẩm này chưa có thông số kỹ thuật chi tiết.</p>
                     <?php endif; ?>
                 </div>
+                <div id="description" class="tab-pane ">
+                    <?= !empty($product->description) ? nl2br(htmlspecialchars($product->description)) : '<p>Chưa có mô tả cho sản phẩm này.</p>' ?>
+                </div>
+                
             </div>
         </div>
     </div>

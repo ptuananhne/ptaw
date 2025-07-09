@@ -43,7 +43,6 @@ if (!function_exists('render_product_card')) {
                             <?php else: ?>
                                 Liên hệ
                             <?php endif; ?>
-                            <?php // --- END: ĐOẠN MÃ SỬA LỖI HIỂN THỊ GIÁ --- ?>
                         </p>
                         <div class="product-card-action">
                             <span class="action-text">Xem chi tiết</span>

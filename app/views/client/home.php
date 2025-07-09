@@ -1,10 +1,8 @@
 <?php
     $this->view('client/layouts/header', $data);
-    // Nạp file chứa hàm render_product_card() để có thể sử dụng ở dưới
-   require_once 'components/product_card.php'; // Nạp tệp hàm component 
+   require_once 'components/product_card.php'; 
 ?>
 
-<!-- Banner Section -->
 <section class="banner-section">
     <div class="banner-slider-container">
         <div class="banner-track">
@@ -17,7 +15,6 @@
                     </div>
                 <?php endforeach; ?>
             <?php else: ?>
-                <!-- Fallback content when no banners are active -->
                 <div class="banner-slide">
                     <div class="hero-section-fallback">
                         <h1>Khám Phá Thế Giới Công Nghệ</h1>
@@ -26,8 +23,6 @@
                 </div>
             <?php endif; ?>
         </div>
-
-        <!-- Navigation Buttons -->
         <?php if (!empty($data['banners']) && count($data['banners']) > 1): ?>
             <button class="banner-btn prev" aria-label="Previous Banner">&#10094;</button>
             <button class="banner-btn next" aria-label="Next Banner">&#10095;</button>
@@ -43,7 +38,7 @@
             <div class="slider-track-container">
                 <div class="slider-track">
                     <?php foreach ($data['featuredProducts'] as $product): ?>
-                        <?php render_product_card($product); // Gọi hàm để render thẻ sản phẩm ?>
+                        <?php render_product_card($product);  ?>
                     <?php endforeach; ?>
                 </div>
             </div>
@@ -66,7 +61,7 @@
                     <div class="slider-track-container">
                         <div class="slider-track">
                             <?php foreach ($categoryData['products'] as $product): ?>
-                                <?php render_product_card($product); // Chỉ cần gọi hàm này, nó đã chứa thẻ product-card ?>
+                                <?php render_product_card($product); ?>
                             <?php endforeach; ?>
                         </div>
                     </div>

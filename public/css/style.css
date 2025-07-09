@@ -1,16 +1,8 @@
-/*
-  STYLE.CSS - PHIÊN BẢN NÂNG CẤP ĐẦY ĐỦ
-  ------------------------------------
-  * Giữ lại toàn bộ cấu trúc CSS gốc và nâng cấp giao diện.
-  * Tích hợp Chế độ Sáng & Tối (Light/Dark Mode).
-  * Bảng màu, hiệu ứng, bóng đổ được tinh chỉnh hài hòa, mượt mà.
-  * Ghi chú: Để chuyển đổi theme, thêm/xóa attribute data-theme="dark" vào thẻ <html>.
-*/
 
 /* --- 1. CÀI ĐẶT BIẾN TOÀN CỤC & RESET --- */
 :root {
   /* Bảng màu cho Light Mode (Chế độ Sáng) */
-  --color-primary: #12c221; /* Xanh lá cây đậm, sang trọng */
+  --color-primary: #12c221; 
   --color-primary-rgb: 0, 128, 96;
   --color-primary-dark: #0d8508;
   --color-primary-light: #e6f2ef;

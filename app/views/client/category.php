@@ -1,5 +1,5 @@
 <?php $this->view('client/layouts/header', $data); ?>
-<?php require_once 'components/product_card.php'; // Nạp tệp hàm component 
+<?php require_once 'components/product_card.php'; 
 ?>
 
 <div class="page-header">
@@ -12,7 +12,6 @@
     <h1 class="page-title"><?= htmlspecialchars($category->name) ?></h1>
 </div>
 
-<!-- Filter Bar -->
 <form class="filter-bar" method="GET" action="">
     <div class="filter-group">
         <label for="brand-filter">Thương hiệu</label>
@@ -37,11 +36,10 @@
     <button type="submit" class="filter-button">Lọc sản phẩm</button>
 </form>
 
-<!-- Product Grid -->
 <div class="product-grid">
     <?php if (!empty($products)): ?>
         <?php foreach ($products as $product): ?>
-            <?php render_product_card($product); // Gọi hàm để render thẻ sản phẩm 
+            <?php render_product_card($product); 
             ?>
         <?php endforeach; ?>
     <?php else: ?>
@@ -51,7 +49,6 @@
     <?php endif; ?>
 </div>
 
-<!-- Pagination -->
 <?php if (isset($pagination) && $pagination['total'] > 1): ?>
     <nav class="pagination" aria-label="Product navigation">
         <ul>

@@ -1,20 +1,7 @@
-/**
- * ===============================================================================
- * == FILE JAVASCRIPT TỔNG HỢP - PHIÊN BẢN 9.1 (SỬA LỖI LOGIC)
- * == Tác giả: Gemini
- * == Ngày: 2025-07-09
- * ==
- * == Mô tả: 
- * == - Sửa lỗi logic biến thể bằng cách lấy tên thuộc tính từ data-attribute
- * ==   thay vì từ text label, đảm bảo so khớp dữ liệu chính xác.
- * == - Giữ nguyên và tối ưu toàn bộ chức năng cũ và mới.
- * ===============================================================================
- */
+
 document.addEventListener("DOMContentLoaded", function () {
   
-  /**
-   * --- KHỞI TẠO CÁC CHỨC NĂNG TOÀN TRANG ---
-   */
+
   initializeMobileMenu();
   document.querySelectorAll(".product-slider").forEach(initializeProductSlider);
   initializeBannerSlider();
@@ -35,15 +22,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // Check for saved theme in localStorage
   if (localStorage.getItem('theme') === 'dark') {
     htmlEl.setAttribute('data-theme', 'dark');
   }
-  /**
-   * =============================================================================
-   * == CÁC HÀM KHỞI TẠO (INITIALIZER FUNCTIONS)
-   * =============================================================================
-   */
 
   function initializeMobileMenu() {
     const menuToggle = document.getElementById("mobile-menu-toggle");
@@ -145,19 +126,15 @@ document.addEventListener("DOMContentLoaded", function () {
     startAutoPlay();
   }
 
-  /**
-   * --- LOGIC TRANG CHI TIẾT SẢN PHẨM V2 (Bao gồm logic biến thể thông minh) ---
-   */
+
   function initializeProductDetailPageV2() {
     const page = document.querySelector('.product-detail-page-v2');
     if (!page) return;
 
-    // --- 1. LOGIC CHUNG ---
     const mainImage = document.getElementById("main-product-image");
     const fbButton = page.querySelector("#fb-messenger-btn");
     const productTabsContainer = page.querySelector(".product-details-tabs-v2");
 
-    // --- 2. LOGIC BIẾN THỂ (NÂNG CẤP) ---
     const variantsContainer = document.getElementById("product-variants-container");
     const variantsDataElement = document.getElementById("product-variants-data");
     const priceDisplay = document.getElementById("product-price-display");
@@ -182,7 +159,6 @@ document.addEventListener("DOMContentLoaded", function () {
       const allInputs = Array.from(variantsContainer.querySelectorAll('input[type="radio"]'));
       const attributeGroups = Array.from(variantsContainer.querySelectorAll('.variant-group-v2'));
       
-      // **FIX**: Lấy tên thuộc tính từ data-attribute để đảm bảo chính xác
       const attributeNames = attributeGroups.map(g => g.dataset.attributeGroupName);
 
       const formatPrice = (price) => price > 0 ? `${parseInt(price).toLocaleString('vi-VN')} đ` : "Liên hệ";
@@ -253,10 +229,9 @@ document.addEventListener("DOMContentLoaded", function () {
         updateDisplay();
       });
 
-      updateDisplay(); // Initial run
+      updateDisplay(); 
     }
 
-    // --- 3. LOGIC GALLERY, TABS, FB BUTTON ---
     if (mainImage) {
       const galleryV2 = page.querySelector(".product-gallery-v2");
       if (galleryV2) {
