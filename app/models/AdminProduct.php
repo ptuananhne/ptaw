@@ -9,9 +9,6 @@ class AdminProduct
         $this->db = Database::getInstance()->getConnection();
     }
 
-    /**
-     * Tạo một slug duy nhất bằng cách thêm số vào cuối nếu cần.
-     */
     private function generateUniqueSlug($slug, $excludeId = null)
     {
         $originalSlug = $slug;
@@ -31,9 +28,8 @@ class AdminProduct
             }
             $stmt->execute($params);
             if ($stmt->fetch() === false) {
-                break; // Slug is unique
+                break; 
             }
-            // If not unique, append a number and try again
             $slug = $originalSlug . '-' . $counter;
             $counter++;
         }
@@ -97,12 +93,9 @@ class AdminProduct
                         brand_id = :brand_id,
                         product_type = :product_type,
                         price = :price,
-                        attributes = :attributes";
-
-            if (isset($data['image_url'])) {
-                $sql .= ", image_url = :image_url";
-            }
-            $sql .= " WHERE id = :id";
+                        attributes = :attributes,
+                        image_url = :image_url
+                    WHERE id = :id";
 
             $stmt = $this->db->prepare($sql);
 
@@ -115,12 +108,9 @@ class AdminProduct
                 ':brand_id' => $data['brand_id'],
                 ':product_type' => $data['product_type'],
                 ':price' => ($data['product_type'] == 'simple') ? $data['price'] : null,
-                ':attributes' => ($data['product_type'] == 'variable') ? $data['attributes_json'] : null
+                ':attributes' => ($data['product_type'] == 'variable') ? $data['attributes_json'] : null,
+                ':image_url' => $data['image_url'] // Cập nhật ảnh đại diện
             ];
-
-            if (isset($data['image_url'])) {
-                $params[':image_url'] = $data['image_url'];
-            }
 
             $stmt->execute($params);
 
@@ -159,7 +149,6 @@ class AdminProduct
         }
     }
 
-    // Các hàm khác không thay đổi
     public function getProducts($filters = [], $page = 1, $perPage = 10)
     {
         $offset = ($page - 1) * $perPage;
@@ -176,6 +165,7 @@ class AdminProduct
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
+
     public function countProducts($filters = [])
     {
         $sql = "SELECT COUNT(p.id) as total FROM products p";
@@ -186,6 +176,7 @@ class AdminProduct
         $result = $stmt->fetch(PDO::FETCH_OBJ);
         return $result ? (int)$result->total : 0;
     }
+
     private function buildWhereClause($filters)
     {
         $where = " WHERE 1=1";
@@ -204,6 +195,7 @@ class AdminProduct
         }
         return [$where, $params];
     }
+
     public function getProductById($id)
     {
         $stmt = $this->db->prepare("SELECT * FROM products WHERE id = :id");
@@ -218,30 +210,103 @@ class AdminProduct
         }
         return $product;
     }
+
+    public function deleteProduct($id)
+    {
+        $this->db->beginTransaction();
+        try {
+            // Lấy tất cả ảnh trong gallery để xóa file
+            $galleryImages = $this->getGalleryByProductId($id);
+            foreach ($galleryImages as $image) {
+                if (!empty($image->image_url) && file_exists($image->image_url)) {
+                    unlink($image->image_url);
+                }
+            }
+            // Lấy ảnh đại diện để xóa file
+            $product = $this->getProductById($id);
+             if ($product && !empty($product->image_url) && file_exists($product->image_url)) {
+                unlink($product->image_url);
+            }
+
+            // Xóa record trong DB (sẽ tự xóa gallery qua foreign key)
+            $stmt = $this->db->prepare("DELETE FROM products WHERE id = :id");
+            $stmt->execute([':id' => $id]);
+            
+            $this->db->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            error_log('Lỗi xóa sản phẩm: ' . $e->getMessage());
+            return false;
+        }
+    }
+    
+    // --- Các hàm quản lý thư viện ảnh ---
+
+    public function addImagesToGallery($productId, $imagePaths)
+    {
+        if (empty($imagePaths)) return true;
+        
+        $sql = "INSERT INTO product_gallery (product_id, image_url) VALUES (:product_id, :image_url)";
+        $stmt = $this->db->prepare($sql);
+        
+        foreach ($imagePaths as $path) {
+            $stmt->execute([':product_id' => $productId, ':image_url' => $path]);
+        }
+        return true;
+    }
+
+    public function getGalleryByProductId($productId)
+    {
+        $stmt = $this->db->prepare("SELECT * FROM product_gallery WHERE product_id = :product_id ORDER BY sort_order ASC, id ASC");
+        $stmt->execute([':product_id' => $productId]);
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }
+
+    public function deleteGalleryImage($imageId)
+    {
+        $this->db->beginTransaction();
+        try {
+            // Lấy thông tin ảnh để xóa file
+            $stmt_get = $this->db->prepare("SELECT image_url FROM product_gallery WHERE id = :id");
+            $stmt_get->execute([':id' => $imageId]);
+            $image = $stmt_get->fetch(PDO::FETCH_OBJ);
+
+            if ($image && !empty($image->image_url) && file_exists($image->image_url)) {
+                unlink($image->image_url);
+            }
+
+            // Xóa record trong DB
+            $stmt_delete = $this->db->prepare("DELETE FROM product_gallery WHERE id = :id");
+            $stmt_delete->execute([':id' => $imageId]);
+
+            $this->db->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            error_log('Lỗi xóa ảnh gallery: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    // --- Các hàm có sẵn ---
     public function getAllCategories()
     {
         $stmt = $this->db->query("SELECT * FROM categories ORDER BY name ASC");
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
+
     public function getAllBrands()
     {
         $stmt = $this->db->query("SELECT * FROM brands ORDER BY name ASC");
         return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
+
     public function getBrandsByCategoryId($categoryId)
     {
         $sql = "SELECT b.id, b.name FROM brands b JOIN category_brand cb ON b.id = cb.brand_id WHERE cb.category_id = :category_id ORDER BY b.name ASC";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([':category_id' => $categoryId]);
         return $stmt->fetchAll(PDO::FETCH_OBJ);
-    }
-    public function deleteProduct($id)
-    {
-        $product = $this->getProductById($id);
-        if ($product && !empty($product->image_url) && file_exists(PUBLIC_PATH . '/' . $product->image_url)) {
-            unlink(PUBLIC_PATH . '/' . $product->image_url);
-        }
-        $stmt = $this->db->prepare("DELETE FROM products WHERE id = :id");
-        return $stmt->execute([':id' => $id]);
     }
 }

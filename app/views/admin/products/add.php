@@ -18,6 +18,28 @@
             display: inline-flex; 
         }
         .remove-spec, .remove-attribute-btn { display: none; }
+        #image-preview-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .img-preview-wrapper {
+            position: relative;
+            width: 100%;
+            padding-top: 100%; /* 1:1 Aspect Ratio */
+            border: 1px solid #ddd;
+            border-radius: 0.375rem;
+            overflow: hidden;
+        }
+        .img-preview-wrapper img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
     </style>
 </head>
 
@@ -27,7 +49,6 @@
         $productType = $data['product_type'] ?? 'simple';
         $specs_raw = $data['specifications_raw'] ?? [];
         $all_attributes = $data['all_attributes'] ?? [];
-        // Lấy lại các thuộc tính đã chọn nếu có lỗi
         $selected_attributes_data = [];
         if (!empty($data['attributes_json'])) {
             $selected_attributes_data = json_decode($data['attributes_json'], true);
@@ -35,12 +56,17 @@
     ?>
     <div class="flex">
         <!-- Sidebar -->
-        <div class="w-64 min-h-screen bg-gray-800 text-white p-4">
-            <h2 class="text-2xl font-bold mb-6">Admin</h2>
-            <nav>
+          <div class="w-64 min-h-screen bg-gray-800 text-white p-4 flex text-center item-center flex-col">
+            <h2 class="text-2xl font-bold mb-6">Admin Panel</h2><a href="<?php echo BASE_URL; ?>/admin/auth/logout" 
+                class="block text-center py-2.5 px-4 rounded bg-red-500 hover:bg-red-600">
+                Đăng xuất
+                </a>
+            <nav class="flex-grow">
                 <a href="<?php echo BASE_URL; ?>/admin/dashboard" class="block py-2.5 px-4 rounded hover:bg-gray-700">Dashboard</a>
                 <a href="<?php echo BASE_URL; ?>/admin/product" class="block py-2.5 px-4 rounded bg-gray-700">Sản phẩm</a>
-                <a href="<?php echo BASE_URL; ?>/admin/productAttribute" class="block py-2.5 px-4 rounded hover:bg-gray-700">Thuộc tính</a>
+                <a href="<?php echo BASE_URL; ?>/admin/taxonomy" class="block py-2.5 px-4 rounded hover:bg-gray-700">Phân loại</a>
+                <a href="<?php echo BASE_URL; ?>/admin/banner" class="block py-2.5 px-4 rounded hover:bg-gray-700">Banner</a>
+                <a href="<?php echo BASE_URL; ?>/admin/productattribute" class="block py-2.5 px-4 rounded hover:bg-gray-700">Thuộc tính</a>
             </nav>
         </div>
 
@@ -137,7 +163,6 @@
                                             }
                                             if (!$full_attr_data) continue;
                                             
-                                            // Gộp các giá trị có sẵn và các giá trị đã chọn (bao gồm cả giá trị mới)
                                             $existing_terms = array_column($full_attr_data->terms, 'name');
                                             $all_possible_terms = array_unique(array_merge($existing_terms, $selected_attr['values']));
                                         ?>
@@ -194,9 +219,11 @@
                         </div>
                         <div class="bg-white p-6 rounded-lg shadow-md">
                             <h3 class="text-xl font-semibold mb-4 border-b pb-2">Ảnh sản phẩm</h3>
-                            <label for="image" class="block text-gray-700 font-bold mb-2">Ảnh đại diện:</label>
-                            <input type="file" name="image" id="image" class="w-full <?php echo !empty($errors['image']) ? 'text-red-500' : ''; ?>">
-                            <?php if (!empty($errors['image'])): ?><p class="text-red-500 text-xs italic mt-2"><?php echo $errors['image']; ?></p><?php endif; ?>
+                            <label for="gallery" class="block text-gray-700 font-bold mb-2">Thư viện ảnh:</label>
+                            <p class="text-sm text-gray-500 mb-2">Ảnh đầu tiên sẽ được chọn làm ảnh đại diện. Giữ Ctrl để chọn nhiều ảnh.</p>
+                            <input type="file" name="gallery[]" id="gallery" class="w-full <?php echo !empty($errors['gallery']) ? 'text-red-500' : ''; ?>" multiple>
+                            <?php if (!empty($errors['gallery'])): ?><p class="text-red-500 text-xs italic mt-2"><?php echo $errors['gallery']; ?></p><?php endif; ?>
+                            <div id="image-preview-container"></div>
                         </div>
                     </div>
                 </div>
@@ -211,6 +238,28 @@
 document.addEventListener('DOMContentLoaded', function () {
     const allAttributes = <?php echo json_encode($all_attributes, JSON_UNESCAPED_UNICODE); ?>;
     
+    // --- Image Preview ---
+    const galleryInput = document.getElementById('gallery');
+    const previewContainer = document.getElementById('image-preview-container');
+    galleryInput.addEventListener('change', function() {
+        previewContainer.innerHTML = ''; // Clear previous previews
+        if (this.files) {
+            Array.from(this.files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'img-preview-wrapper';
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    wrapper.appendChild(img);
+                    previewContainer.appendChild(wrapper);
+                }
+                reader.readAsDataURL(file);
+            });
+        }
+    });
+
+
     const productTypeSelect = document.getElementById('product_type');
     const simpleProductData = document.getElementById('simple-product-data');
     const variableProductData = document.getElementById('variable-product-data');
@@ -227,7 +276,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (element.tomselect) return;
         new TomSelect(element, {
             plugins: ['remove_button'],
-            create: true, // Cho phép tạo giá trị mới
+            create: true, 
             onItemAdd: function() {
                 this.setTextboxValue('');
                 this.refreshOptions();
@@ -235,7 +284,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // Initialize for existing elements on page load (if any)
     document.querySelectorAll('#attributes-container select').forEach(initializeTomSelect);
     if(document.querySelectorAll('#attributes-container .attribute-item').length > 0) {
         variantsSection.classList.remove('hidden');

@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS `attribute_terms` (
   PRIMARY KEY (`id`),
   KEY `attribute_id` (`attribute_id`),
   CONSTRAINT `attribute_terms_ibfk_1` FOREIGN KEY (`attribute_id`) REFERENCES `attributes` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Data exporting was unselected.
 
@@ -164,7 +164,7 @@ CREATE TABLE IF NOT EXISTS `product_variants` (
   PRIMARY KEY (`id`),
   KEY `product_id` (`product_id`),
   CONSTRAINT `product_variants_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Lưu các phiên bản (biến thể) của sản phẩm';
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Lưu các phiên bản (biến thể) của sản phẩm';
 
 -- Data exporting was unselected.
 

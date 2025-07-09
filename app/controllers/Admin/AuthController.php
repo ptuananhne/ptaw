@@ -70,7 +70,7 @@ class AuthController extends Controller
         unset($_SESSION['admin_id']);
         unset($_SESSION['admin_username']);
         session_destroy();
-        header('Location: ' . BASE_URL . '/admin/auth/login');
+        header('Location: ' . BASE_URL . '/admin/login');
         exit;
     }
 }

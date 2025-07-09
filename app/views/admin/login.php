@@ -1,30 +1,35 @@
+<?php
+// Tệp: admin/login.php (đã tối ưu)
+// ---
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+// Nếu đã đăng nhập, chuyển hướng đến dashboard
+if (isset($_SESSION['user_id'])) {
+    header('Location: ' . BASE_URL . '/admin/dashboard');
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="vi">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-    </style>
+    <style> body { font-family: 'Inter', sans-serif; } </style>
 </head>
-
 <body class="bg-gray-100 flex items-center justify-center h-screen">
     <div class="w-full max-w-md bg-white rounded-lg shadow-md p-8">
         <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Đăng Nhập Admin</h2>
 
         <?php if (!empty($data['error'])): ?>
             <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-                <span class="block sm:inline"><?php echo $data['error']; ?></span>
+                <span class="block sm:inline"><?php echo htmlspecialchars($data['error']); ?></span>
             </div>
         <?php endif; ?>
 
-        <!-- SỬA LỖI: Đảm bảo action trỏ đến /admin/auth/login -->
         <form action="<?php echo BASE_URL; ?>/admin/auth/login" method="POST">
             <div class="mb-4">
                 <label for="username" class="block text-gray-700 text-sm font-bold mb-2">Tên đăng nhập</label>
@@ -42,5 +47,4 @@
         </form>
     </div>
 </body>
-
 </html>

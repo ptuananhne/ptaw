@@ -3,10 +3,10 @@
 class ProductController extends Controller
 {
     private $adminProductModel;
-    private $productAttributeModel; // Thêm model thuộc tính
+    private $productAttributeModel;
     private $productsPerPage = 10;
 
-   public function __construct()
+    public function __construct()
     {
         if (!isset($_SESSION['admin_id'])) {
             header('Location: ' . BASE_URL . '/admin/auth/login');
@@ -64,12 +64,11 @@ class ProductController extends Controller
 
     public function add()
     {
-        // Dữ liệu mặc định cho GET request
         $data = [
             'title' => 'Thêm Sản phẩm mới',
             'categories' => $this->adminProductModel->getAllCategories(),
             'brands' => $this->adminProductModel->getAllBrands(),
-            'all_attributes' => $this->productAttributeModel->getAllWithTerms(), // Lấy tất cả thuộc tính
+            'all_attributes' => $this->productAttributeModel->getAllWithTerms(),
             'errors' => []
         ];
 
@@ -79,12 +78,19 @@ class ProductController extends Controller
             $data = array_merge($data, $postData, ['errors' => $errors]);
 
             if (empty($errors)) {
-                $uploadResult = $this->handleImageUpload($_FILES['image']);
+                $uploadResult = $this->handleMultipleImageUploads($_FILES['gallery'] ?? []);
                 if ($uploadResult['success']) {
-                    $postData['image_url'] = $uploadResult['path'];
+                    $imagePaths = $uploadResult['paths'];
+                    // Lấy ảnh đầu tiên làm ảnh đại diện
+                    $postData['image_url'] = $imagePaths[0] ?? null; 
                     $postData['slug'] = create_slug($postData['name']);
 
-                    if ($this->adminProductModel->createProduct($postData)) {
+                    $productId = $this->adminProductModel->createProduct($postData);
+                    if ($productId) {
+                        // Thêm các ảnh còn lại vào gallery
+                        if (!empty($imagePaths)) {
+                            $this->adminProductModel->addImagesToGallery($productId, $imagePaths);
+                        }
                         flash('product_message', 'Thêm sản phẩm thành công!');
                         header('Location: ' . BASE_URL . '/admin/product');
                         exit;
@@ -92,7 +98,7 @@ class ProductController extends Controller
                         $data['errors']['form'] = 'Đã có lỗi xảy ra khi lưu sản phẩm. Có thể tên sản phẩm đã tồn tại.';
                     }
                 } else {
-                    $data['errors']['image'] = $uploadResult['error'];
+                    $data['errors']['gallery'] = $uploadResult['error'];
                 }
             }
         }
@@ -112,8 +118,9 @@ class ProductController extends Controller
             'title' => 'Sửa Sản phẩm',
             'categories' => $this->adminProductModel->getAllCategories(),
             'brands' => $this->adminProductModel->getBrandsByCategoryId($product->category_id),
-            'all_attributes' => $this->productAttributeModel->getAllWithTerms(), // Lấy tất cả thuộc tính
+            'all_attributes' => $this->productAttributeModel->getAllWithTerms(),
             'product' => $product,
+            'gallery' => $this->adminProductModel->getGalleryByProductId($id), // Lấy thư viện ảnh
             'errors' => []
         ];
 
@@ -124,17 +131,21 @@ class ProductController extends Controller
             $data['errors'] = $errors;
 
             if (empty($errors)) {
-                if (!empty($_FILES['image']['name'])) {
-                    $uploadResult = $this->handleImageUpload($_FILES['image']);
+                // Xử lý tải ảnh mới
+                if (!empty($_FILES['gallery']['name'][0])) {
+                    $uploadResult = $this->handleMultipleImageUploads($_FILES['gallery']);
                     if ($uploadResult['success']) {
-                        $postData['image_url'] = $uploadResult['path'];
+                        $this->adminProductModel->addImagesToGallery($id, $uploadResult['paths']);
                     } else {
-                        $data['errors']['image'] = $uploadResult['error'];
+                        $data['errors']['gallery'] = $uploadResult['error'];
                     }
                 }
 
                 if (empty($data['errors'])) {
                     $postData['slug'] = create_slug($postData['name']);
+                    // Cập nhật ảnh đại diện từ form
+                    $postData['image_url'] = $_POST['featured_image_url'] ?? $product->image_url;
+
                     if ($this->adminProductModel->updateProduct($id, $postData)) {
                         flash('product_message', 'Cập nhật sản phẩm thành công!');
                         header('Location: ' . BASE_URL . '/admin/product/edit/' . $id);
@@ -148,6 +159,23 @@ class ProductController extends Controller
 
         $this->view('admin/products/edit', $data);
     }
+    
+    public function delete_gallery_image() {
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $imageId = $_POST['image_id'] ?? null;
+            if ($imageId) {
+                if ($this->adminProductModel->deleteGalleryImage($imageId)) {
+                    echo json_encode(['success' => true, 'message' => 'Xóa ảnh thành công.']);
+                } else {
+                    echo json_encode(['success' => false, 'message' => 'Lỗi khi xóa ảnh.']);
+                }
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Không có ID ảnh.']);
+            }
+            exit;
+        }
+    }
+
 
     public function delete($id)
     {
@@ -183,7 +211,6 @@ class ProductController extends Controller
             foreach ($post['product_attributes'] as $attr_id => $attr_data) {
                 if (!empty($attr_data['name']) && !empty($attr_data['values']) && is_array($attr_data['values'])) {
                     
-                    // Tự động thêm giá trị mới vào DB
                     foreach ($attr_data['values'] as $term_name) {
                         $this->productAttributeModel->addTerm($attr_id, $term_name);
                     }
@@ -245,33 +272,50 @@ class ProductController extends Controller
                 }
             }
         }
+        // Validate image upload only on add form, not edit
+        if (!$isEdit && empty($_FILES['gallery']['name'][0])) {
+             $errors['gallery'] = 'Vui lòng tải lên ít nhất một ảnh.';
+        }
 
         return $errors;
     }
 
-    private function handleImageUpload($file)
+    private function handleMultipleImageUploads($files)
     {
-        if (!$file || $file['error'] === UPLOAD_ERR_NO_FILE) {
-            return ['success' => true, 'path' => null];
+        if (empty($files) || empty($files['name'][0])) {
+            return ['success' => true, 'paths' => []];
         }
 
-        if ($file['error'] === UPLOAD_ERR_OK) {
-            $uploadDir = 'uploads/products/';
-            if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
-            
-            $fileExtension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-            $fileName = uniqid(bin2hex(random_bytes(4)).'_') . '.' . $fileExtension;
-            $targetPath = $uploadDir . $fileName;
-            
-            $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-            if (!in_array($file['type'], $allowedTypes)) {
-                return ['success' => false, 'error' => 'Chỉ cho phép ảnh JPG, PNG, GIF, WEBP.'];
-            }
-            if (move_uploaded_file($file['tmp_name'], $targetPath)) {
-                return ['success' => true, 'path' => $targetPath];
+        $uploadedPaths = [];
+        $errors = [];
+        $uploadDir = 'uploads/products/';
+        if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
+
+        $fileCount = count($files['name']);
+        for ($i = 0; $i < $fileCount; $i++) {
+            if ($files['error'][$i] === UPLOAD_ERR_OK) {
+                $fileExtension = strtolower(pathinfo($files['name'][$i], PATHINFO_EXTENSION));
+                $fileName = uniqid(bin2hex(random_bytes(4)).'_') . '.' . $fileExtension;
+                $targetPath = $uploadDir . $fileName;
+                
+                $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+                if (!in_array($files['type'][$i], $allowedTypes)) {
+                    $errors[] = "Tệp '{$files['name'][$i]}' có định dạng không hợp lệ.";
+                    continue;
+                }
+                if (move_uploaded_file($files['tmp_name'][$i], $targetPath)) {
+                    $uploadedPaths[] = $targetPath;
+                } else {
+                    $errors[] = "Lỗi khi di chuyển tệp '{$files['name'][$i]}'.";
+                }
+            } elseif ($files['error'][$i] !== UPLOAD_ERR_NO_FILE) {
+                 $errors[] = "Lỗi tải lên tệp '{$files['name'][$i]}'. Mã lỗi: " . $files['error'][$i];
             }
         }
-        
-        return ['success' => false, 'error' => 'Có lỗi xảy ra khi tải ảnh lên. Mã lỗi: ' . $file['error']];
+
+        if (!empty($errors)) {
+            return ['success' => false, 'error' => implode('<br>', $errors)];
+        }
+        return ['success' => true, 'paths' => $uploadedPaths];
     }
 }

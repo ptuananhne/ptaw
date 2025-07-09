@@ -10,15 +10,15 @@
 /* --- 1. CÀI ĐẶT BIẾN TOÀN CỤC & RESET --- */
 :root {
   /* Bảng màu cho Light Mode (Chế độ Sáng) */
-  --color-primary: #008060; /* Xanh lá cây đậm, sang trọng */
+  --color-primary: #12c221; /* Xanh lá cây đậm, sang trọng */
   --color-primary-rgb: 0, 128, 96;
-  --color-primary-dark: #00664d;
+  --color-primary-dark: #0d8508;
   --color-primary-light: #e6f2ef;
   --color-secondary: #5a6470;
   --color-text: #1a1a1a;
   --color-text-muted: #6b7280;
-  --color-surface: #ffffff;
-  --color-background: #f9fafb;
+  --color-surface: #c7c5c5;
+  --color-background: #f8f3f3;
   --color-border: #e5e7eb;
   --color-success: #16a34a;
   --color-danger: #dc2626;
@@ -727,15 +727,15 @@ html[data-theme="dark"] .category-list a.active {
 }
 .slider-btn:hover:not(:disabled) {
   background-color: var(--color-primary);
-  color: #fff;
+  color: #939693;
   transform: translateY(-50%) scale(1.1);
 }
 .slider-btn:disabled {
   opacity: 0.3;
   cursor: not-allowed;
 }
-.slider-btn.prev { left: -22px; }
-.slider-btn.next { right: -22px; }
+.slider-btn.prev { left: 1px; }
+.slider-btn.next { right: 1px; }
 .product-slider:not(.is-scrollable) .slider-btn { display: none !important; }
 
 /* Category Page: Filter Bar */
@@ -1024,7 +1024,7 @@ html[data-theme="dark"] .filter-group select {
 }
 .product-detail-page-v2 .meta-divider { color: var(--color-border); }
 .product-detail-page-v2 .product-price-box-v2 {
-    background-color: var(--color-primary-light);
+    background-color: var(--color-surface);
     border: 2px dashed var(--color-primary);
     border-radius: var(--border-radius-lg);
     padding: 1.5rem;

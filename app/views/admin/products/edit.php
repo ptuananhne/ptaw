@@ -17,6 +17,78 @@
             display: inline-flex; 
         }
         .remove-spec, .remove-attribute-btn { display: none; }
+        
+        /* Gallery Styles */
+        #gallery-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 1rem;
+        }
+        .gallery-item {
+            position: relative;
+            border: 3px solid transparent;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+        .gallery-item.featured {
+            border-color: #3b82f6; /* blue-500 */
+        }
+        .gallery-item img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            display: block;
+        }
+        .gallery-item .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .gallery-item:hover .overlay {
+            opacity: 1;
+        }
+        .gallery-item .delete-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(239, 68, 68, 0.8); /* red-500 */
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            font-size: 14px;
+            line-height: 24px;
+            text-align: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .gallery-item:hover .delete-btn {
+            opacity: 1;
+        }
+        .gallery-item .featured-tag {
+            position: absolute;
+            bottom: 5px;
+            left: 5px;
+            background: #3b82f6;
+            color: white;
+            padding: 2px 6px;
+            font-size: 10px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
     </style>
 </head>
 
@@ -29,15 +101,21 @@
         $all_attributes = $data['all_attributes'] ?? [];
         $selected_attributes_data = !empty($product->attributes) ? json_decode($product->attributes, true) : [];
         $variants = $product->variants ?? [];
+        $gallery = $data['gallery'] ?? [];
     ?>
     <div class="flex">
         <!-- Sidebar -->
-        <div class="w-64 min-h-screen bg-gray-800 text-white p-4">
-            <h2 class="text-2xl font-bold mb-6">Admin</h2>
-            <nav>
+          <div class="w-64 min-h-screen bg-gray-800 text-white p-4 flex text-center item-center flex-col">
+            <h2 class="text-2xl font-bold mb-6">Admin Panel</h2><a href="<?php echo BASE_URL; ?>/admin/auth/logout" 
+                class="block text-center py-2.5 px-4 rounded bg-red-500 hover:bg-red-600">
+                Đăng xuất
+                </a>
+            <nav class="flex-grow">
                 <a href="<?php echo BASE_URL; ?>/admin/dashboard" class="block py-2.5 px-4 rounded hover:bg-gray-700">Dashboard</a>
                 <a href="<?php echo BASE_URL; ?>/admin/product" class="block py-2.5 px-4 rounded bg-gray-700">Sản phẩm</a>
-                <a href="<?php echo BASE_URL; ?>/admin/productAttribute" class="block py-2.5 px-4 rounded hover:bg-gray-700">Thuộc tính</a>
+                <a href="<?php echo BASE_URL; ?>/admin/taxonomy" class="block py-2.5 px-4 rounded hover:bg-gray-700">Phân loại</a>
+                <a href="<?php echo BASE_URL; ?>/admin/banner" class="block py-2.5 px-4 rounded hover:bg-gray-700">Banner</a>
+                <a href="<?php echo BASE_URL; ?>/admin/productattribute" class="block py-2.5 px-4 rounded hover:bg-gray-700">Thuộc tính</a>
             </nav>
         </div>
 
@@ -50,6 +128,7 @@
             <?php flash('product_message'); ?>
 
             <form id="product-form" action="<?php echo BASE_URL; ?>/admin/product/edit/<?php echo $product->id; ?>" method="POST" enctype="multipart/form-data">
+                <input type="hidden" id="featured_image_url" name="featured_image_url" value="<?php echo htmlspecialchars($product->image_url); ?>">
                 <?php if (!empty($errors['form'])): ?>
                     <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6" role="alert">
                         <strong class="font-bold">Đã có lỗi xảy ra!</strong>
@@ -207,14 +286,31 @@
                         </div>
                         <div class="bg-white p-6 rounded-lg shadow-md">
                             <h3 class="text-xl font-semibold mb-4 border-b pb-2">Ảnh sản phẩm</h3>
-                            <?php if(!empty($product->image_url)): ?>
                             <div class="mb-4">
-                                <label class="block text-gray-700 font-bold mb-2">Ảnh đại diện hiện tại:</label>
-                                <img src="<?php echo BASE_URL . '/' . htmlspecialchars($product->image_url); ?>" alt="Ảnh đại diện" class="w-full h-48 object-contain rounded border p-1">
+                                <label class="block text-gray-700 font-bold mb-2">Thư viện ảnh</label>
+                                <p class="text-sm text-gray-500 mb-2">Nhấn vào ảnh để chọn làm ảnh đại diện.</p>
+                                <div id="gallery-container">
+                                    <?php foreach($gallery as $image): ?>
+                                    <div class="gallery-item" data-image-url="<?php echo htmlspecialchars($image->image_url); ?>" data-image-id="<?php echo $image->id; ?>">
+                                        <img src="<?php echo BASE_URL . '/' . htmlspecialchars($image->image_url); ?>" alt="Gallery image">
+                                        <button type="button" class="delete-btn" title="Xóa ảnh">&times;</button>
+                                        <div class="overlay">Chọn</div>
+                                        <?php if ($image->image_url == $product->image_url): ?>
+                                            <div class="featured-tag">Đại diện</div>
+                                        <?php endif; ?>
+                                    </div>
+                                    <?php endforeach; ?>
+                                </div>
+                                <?php if (empty($gallery)): ?>
+                                    <p class="text-center text-gray-500 py-4">Chưa có ảnh nào trong thư viện.</p>
+                                <?php endif; ?>
                             </div>
-                            <?php endif; ?>
-                            <label for="image" class="block text-gray-700 font-bold mb-2">Thay ảnh đại diện mới:</label>
-                            <input type="file" name="image" id="image" class="w-full">
+                            <hr class="my-4">
+                            <div>
+                                <label for="gallery-upload" class="block text-gray-700 font-bold mb-2">Thêm ảnh mới:</label>
+                                <input type="file" name="gallery[]" id="gallery-upload" class="w-full" multiple>
+                                <?php if (!empty($errors['gallery'])): ?><p class="text-red-500 text-xs italic mt-2"><?php echo $errors['gallery']; ?></p><?php endif; ?>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -227,6 +323,79 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    // --- Gallery Management ---
+    const galleryContainer = document.getElementById('gallery-container');
+    const featuredImageInput = document.getElementById('featured_image_url');
+
+    function updateFeaturedImageUI() {
+        const currentFeaturedUrl = featuredImageInput.value;
+        document.querySelectorAll('.gallery-item').forEach(item => {
+            const isFeatured = item.dataset.imageUrl === currentFeaturedUrl;
+            item.classList.toggle('featured', isFeatured);
+            
+            let featuredTag = item.querySelector('.featured-tag');
+            if (isFeatured && !featuredTag) {
+                featuredTag = document.createElement('div');
+                featuredTag.className = 'featured-tag';
+                featuredTag.textContent = 'Đại diện';
+                item.appendChild(featuredTag);
+            } else if (!isFeatured && featuredTag) {
+                featuredTag.remove();
+            }
+        });
+    }
+
+    galleryContainer.addEventListener('click', function(e) {
+        const galleryItem = e.target.closest('.gallery-item');
+        if (!galleryItem) return;
+
+        // Handle Delete Button Click
+        if (e.target.classList.contains('delete-btn')) {
+            e.stopPropagation(); // Prevent setting as featured
+            const imageId = galleryItem.dataset.imageId;
+            if (confirm('Bạn có chắc muốn xóa ảnh này?')) {
+                const formData = new FormData();
+                formData.append('image_id', imageId);
+
+                fetch('<?php echo BASE_URL; ?>/admin/product/delete_gallery_image', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // If deleting the featured image, select the first one as new featured
+                        if (galleryItem.classList.contains('featured')) {
+                            galleryItem.remove();
+                            const firstItem = galleryContainer.querySelector('.gallery-item');
+                            if (firstItem) {
+                                featuredImageInput.value = firstItem.dataset.imageUrl;
+                            } else {
+                                featuredImageInput.value = ''; // No images left
+                            }
+                            updateFeaturedImageUI();
+                        } else {
+                           galleryItem.remove();
+                        }
+                    } else {
+                        alert(data.message || 'Lỗi khi xóa ảnh.');
+                    }
+                })
+                .catch(err => alert('Lỗi kết nối. Vui lòng thử lại.'));
+            }
+        } 
+        // Handle Set Featured Image Click
+        else {
+            featuredImageInput.value = galleryItem.dataset.imageUrl;
+            updateFeaturedImageUI();
+        }
+    });
+    
+    // Initial UI setup
+    updateFeaturedImageUI();
+
+
+    // --- Existing Script ---
     const allAttributes = <?php echo json_encode($all_attributes, JSON_UNESCAPED_UNICODE); ?>;
     
     const productTypeSelect = document.getElementById('product_type');
@@ -256,7 +425,7 @@ document.addEventListener('DOMContentLoaded', function () {
         variantsSection.classList.remove('hidden');
     }
 
-    const mainAttributeSelector = new TomSelect('#attribute-selector', { create: true });
+    const mainAttributeSelector = new TomSelect('#attribute-selector', { create: false });
 
     productTypeSelect.addEventListener('change', function () {
         const isVariable = this.value === 'variable';
@@ -268,19 +437,11 @@ document.addEventListener('DOMContentLoaded', function () {
         const selectedValue = mainAttributeSelector.getValue();
         if (!selectedValue) return;
 
-        const isNewAttribute = !allAttributes.some(attr => attr.id == selectedValue);
-        let attributeData;
-
-        if (isNewAttribute) {
-            const newAttributeName = mainAttributeSelector.options[selectedValue].text;
-            attributeData = { id: `new_${newAttributeName}`, name: newAttributeName, terms: [] };
-        } else {
-            if (document.querySelector(`.attribute-item[data-id="${selectedValue}"]`)) {
-                alert('Thuộc tính này đã được thêm.');
-                return;
-            }
-            attributeData = allAttributes.find(attr => attr.id == selectedValue);
+        if (document.querySelector(`.attribute-item[data-id="${selectedValue}"]`)) {
+            alert('Thuộc tính này đã được thêm.');
+            return;
         }
+        const attributeData = allAttributes.find(attr => attr.id == selectedValue);
         
         if (!attributeData) return;
 
