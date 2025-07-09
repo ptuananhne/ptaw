@@ -18,4 +18,4 @@ define('BASE_URL', 'http://pta.test');
 
 // (Tùy chọn) Các hằng số khác (Giữ nguyên của bạn)
 define('APP_ROOT', dirname(dirname(__FILE__)));
-define('SITE_NAME', 'PTA | Bán hàng trực tuyến');
+define('SITE_NAME', 'PHÚT 89');

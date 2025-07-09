@@ -44,7 +44,7 @@ class CategoryController extends Controller
         ]));
 
         $data = [
-            'title' => 'Danh mục: ' . htmlspecialchars($category->name),
+            'title' => '' . htmlspecialchars($category->name),
             'category' => $category,
             'products' => $products,
             'brands' => $categoryModel->getBrandsByCategorySlug($slug),

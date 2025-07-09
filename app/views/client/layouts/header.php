@@ -10,12 +10,28 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <!-- Stylesheet -->
-    <link rel="stylesheet" href="<?= BASE_URL ?>/css/style.css?v=6.1">
-</head>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-<!-- SỬA LỖI: Thêm class động vào thẻ body -->
+    <script>
+      // Chạy ngay lập tức để áp dụng theme từ localStorage trước khi trang được hiển thị
+      (function() {
+        try {
+          const theme = localStorage.getItem('theme');
+          if (theme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+          }
+        } catch (e) {
+          // Bỏ qua lỗi nếu localStorage không khả dụng
+        }
+      })();
+    </script>
+    <!-- =================================================================== -->
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="<?= BASE_URL ?>/css/style.css?v=6.2">
+</head>
 
 <body class="<?= $page_class ?? '' ?>">
     <!-- Overlay for mobile menu -->
@@ -58,12 +74,31 @@
                 </div>
 
                 <div class="header-right">
-                    <nav class="header-nav">
-                        <ul>
-                            <li><a href="<?= BASE_URL ?>" class="<?= !isset($current_category_slug) ? 'active' : '' ?>">Trang chủ</a></li>
-                            <!-- Add other nav links here if needed -->
-                        </ul>
-                    </nav>
+                    <!-- Desktop navigation and actions -->
+                    <div class="header-actions">
+                        <nav class="header-nav">
+                            <ul>
+                                <li>
+                                    <a href="<?= BASE_URL ?>" class="<?= !isset($current_category_slug) ? 'active' : '' ?>">
+                                        <i class="fa-solid fa-house"></i>
+                                        <span>Trang chủ</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#">
+                                        <i class="fa-solid fa-address-book"></i>
+                                        <span>Liên hệ</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+
+                        <button id="theme-toggle" class="header-action-btn theme-toggle-btn" aria-label="Chuyển đổi chế độ sáng/tối">
+                            <i class="fa-solid fa-moon"></i>
+                            <i class="fa-solid fa-sun"></i>
+                        </button>
+                    </div>
+
                     <!-- Mobile menu hamburger button -->
                     <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Mở menu">
                         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 16 16">

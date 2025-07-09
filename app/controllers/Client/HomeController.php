@@ -23,7 +23,7 @@ class HomeController extends Controller
 
         // Chuẩn bị dữ liệu để gửi cho view
         $data = [
-            'title' => 'Trang chủ - PTA | Thế giới công nghệ',
+            'title' => 'Trang chủ - PHÚT 89 | Thế giới công nghệ',
             'categories' => $allCategories,
             'banners' => $activeBanners,
             'featuredProducts' => $featuredProducts,
